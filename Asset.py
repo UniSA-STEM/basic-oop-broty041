@@ -6,3 +6,17 @@ ID: <110454503>
 Username: <broty041>
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
+
+
+class Asset:
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+        self.__encryption = False
+
+    def __str__(self):
+        if self.__encryption == False:
+            return f"{self.name}: {self.description}"
+        else:
+            return f"{self.name}: {self.description}[Encrypted]"
+
