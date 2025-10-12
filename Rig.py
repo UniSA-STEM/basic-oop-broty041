@@ -1,8 +1,8 @@
 """
 File: Rig.py
-Description: <A brief description of this Python module.>
-Author: <full name>
-ID: <student_id>
-Username: <username>
+Description: <This module contains all the code for the rig.>
+Author: <Thomas Brown>
+ID: <110454503>
+Username: <broty041>
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
