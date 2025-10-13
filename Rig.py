@@ -78,12 +78,30 @@ class Rig:
                 return idx
         return None
 
+    def extract_rig_assets_check(self, target):
+        storage_copy = target.get_rig().getter_storage().copy()
+        if target.get_rig().broken is False:
+            print(f"{target.owner}'s rig must be broken before extracting assets.")
+            return False
+
+        if len(storage_copy) == 0:
+            print(f"{target.name}'s storage is empty. Nothing to extract.")
+            return False
+
+        if self.search_storage("Removable Drive") is None:
+            print("No Removable Drive's in your rig's storage.\n"
+                  "A Removable Drive is required to extract another broken rig's assets.")
+            return False
+
+        return True
+
+
     def extract_rig_assets(self, target):
         owner = self.owner
         storage_copy = target.get_rig().getter_storage().copy()
         unsecure_count = 0
         secure_count = 0
-        if target.get_rig().broken is True and len(storage_copy) > 0:
+        if self.extract_rig_assets_check(target):
             for i in storage_copy:
                 if i.get_encryption() is False:
                     print(i)

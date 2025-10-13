@@ -61,6 +61,9 @@ def extract_rig_storage_test():
     hk1.get_rig().extract_rig_assets(hk2)
     hk1.get_inventory()
     hk2.get_rig().get_storage()
+    hk1.add_asset(Asset("Removable Drive", "Found in rigs and used for extraction."))
+    hk1.get_rig().extract_rig_assets(hk2)
+
     print(f"--- Concluded rig storage extraction testing ---\n")
 
 
