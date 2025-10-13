@@ -15,7 +15,7 @@ class Asset:
         self.__encryption = False
 
     def __str__(self):
-        if self.__encryption == False:
+        if not self.__encryption:
             return f"{self.name}: {self.description}"
         else:
             return f"{self.name}: {self.description}[Encrypted]"

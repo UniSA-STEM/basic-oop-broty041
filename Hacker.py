@@ -19,6 +19,7 @@ class Hacker:
         self.__equipped_rig = None
         self.__trace_level = 0
 
+    # --- Getters and Setters ---
     def get_inventory(self):
         if not self.__inventory:
             print("Inventory is empty.")
@@ -26,6 +27,14 @@ class Hacker:
             for i in self.__inventory:
                 print(i)
 
+    def get_rig(self):
+        return self.__equipped_rig
+
+    # --- Property Attributes ---
+
+
+
+    # --- General Methods ---
     def search_inventory(self, item):
         for idx, i in enumerate(self.__inventory):
             if item == i.name:
@@ -35,12 +44,10 @@ class Hacker:
     def add_asset(self, item):
         self.__inventory.append(item)
 
-
-
-    def start_journey(self):
+    def start_journey(self, rig_name):
         if self.search_inventory("CryptoToken") is None:
             print("No CryptoToken's in inventory, cannot equip rig.")
         else:
-            self.__equipped_rig = Rig("HEV")
+            self.__equipped_rig = Rig(rig_name)
             self.__inventory.remove(self.__inventory[self.search_inventory("CryptoToken")])
             print("Welcome to the H.E.V. Mark IV protective system.")
