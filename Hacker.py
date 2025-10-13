@@ -24,14 +24,21 @@ class Hacker:
         if not self.__inventory:
             print("Inventory is empty.")
         else:
+            print(f"Contents of {self.name}'s inventory:")
             for i in self.__inventory:
                 print(i)
 
     def get_rig(self):
         return self.__equipped_rig
 
-    # --- Property Attributes ---
+    def get_trace(self):
+        return self.__trace_level
 
+    def set_trace(self, trace_change):
+        self.__trace_level += trace_change
+
+    # --- Property Attributes ---
+    trace = property(get_trace, set_trace)
 
 
     # --- General Methods ---
@@ -48,6 +55,9 @@ class Hacker:
         if self.search_inventory("CryptoToken") is None:
             print("No CryptoToken's in inventory, cannot equip rig.")
         else:
-            self.__equipped_rig = Rig(rig_name)
+            self.__equipped_rig = Rig(rig_name, self)
             self.__inventory.remove(self.__inventory[self.search_inventory("CryptoToken")])
-            print("Welcome to the H.E.V. Mark IV protective system.")
+            print(f"Welcome to {self.name}'s H.E.V. Mark IV protective system.")
+
+    def __str__(self):
+        return f"{self.name}"

@@ -14,6 +14,14 @@ class Asset:
         self.description = description
         self.__encryption = False
 
+    def get_encryption(self):
+        return self.__encryption
+
+    def __eq__(self, other):
+        if isinstance(other, Asset):
+            return self.name == other.name
+        return False
+
     def __str__(self):
         if not self.__encryption:
             return f"{self.name}: {self.description}"

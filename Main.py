@@ -14,6 +14,7 @@ from Asset import Asset
 def fill_inv_stor(char_rig):
     char_rig.add_asset(Asset("CryptoToken", "Used to acquire or repair rigs."))
     char_rig.add_asset(Asset("CryptoToken", "Used to acquire or repair rigs."))
+    char_rig.add_asset(Asset("CryptoToken", "Used to acquire or repair rigs."))
     char_rig.add_asset(Asset("Data Spike", "Used in battles."))
     char_rig.add_asset(Asset("Data Spike", "Used in battles."))
     char_rig.add_asset(Asset("Removable Drive", "Found in rigs and used for extraction."))
@@ -28,21 +29,44 @@ def starting_procedure_test():
     # Starting procedure
     hk1 = Hacker("Godfree Norman")
     hk1.start_journey("Orange HEV")
-
-def battle_test
-
-# Battles
-fill_inv_stor(hk1)
-
-hk2 = Hacker("Gee Man")
-hk2.start_journey("Red HEV")
-fill_inv_stor(hk2)
-
-hk1.get_rig().deal_damage(hk2)
+    hk2 = Hacker("Gee Man")
+    hk2.start_journey("Red HEV")
+    return hk1, hk2
 
 
-# hk1.get_inventory()
+def battle_test():
+    print(f"--- Executing battle testing ---")
+    hk1, hk2 = starting_procedure_test()
+
+    # Inventory and storage fill
+    fill_inv_stor(hk1)
+    fill_inv_stor(hk2)
+    fill_inv_stor(hk1.get_rig())
+    fill_inv_stor(hk2.get_rig())
+
+    hk1.get_rig().deal_damage(hk2)
+    hk1.get_rig().remove_asset("Data Spike")
+    hk1.get_rig().deal_damage(hk2)
+    hk1.get_rig().add_asset(Asset("Data Spike", "Used in battles."))
+    hk1.get_rig().deal_damage(hk2)
+    hk1.get_rig().deal_damage(hk2)
+    print(f"--- Concluded battle testing ---\n")
 
 
-# Main testing sequence
+def extract_rig_storage_test():
+    print(f"--- Executing rig storage extraction testing ---")
+    hk1, hk2 = starting_procedure_test()
+    fill_inv_stor(hk2.get_rig())
+    hk2.get_rig().broken = True
+    hk1.get_rig().extract_rig_assets(hk2)
+    hk1.get_inventory()
+    hk2.get_rig().get_storage()
+    print(f"--- Concluded rig storage extraction testing ---\n")
+
+
+# --- Main Testing Sequence ---
 starting_procedure_test()
+
+battle_test()
+
+extract_rig_storage_test()
