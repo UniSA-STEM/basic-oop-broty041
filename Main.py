@@ -25,6 +25,8 @@ def get_asset(name):
 
 # Load char and rig with items for testing
 def fill_inv_stor(char_rig):
+    char_rig.set_display_add_print(False)
+    print(f"{char_rig} filled with items.")
     char_rig.add_asset(get_asset("CryptoToken"))
     char_rig.add_asset(get_asset("CryptoToken"))
     char_rig.add_asset(get_asset("Data Spike"))
@@ -35,7 +37,7 @@ def fill_inv_stor(char_rig):
     char_rig.add_asset(get_asset("Security Chip"))
     char_rig.add_asset(get_asset("Hardware Patch"))
     char_rig.add_asset(get_asset("Hardware Patch"))
-
+    char_rig.set_display_add_print(True)
 
 
 
@@ -54,23 +56,41 @@ def battle_test():
     hk1, hk2 = starting_procedure_test()
 
     # Inventory and storage fill
-    fill_inv_stor(hk1)
-    fill_inv_stor(hk2)
+
     fill_inv_stor(hk1.get_rig())
     fill_inv_stor(hk2.get_rig())
 
-    hk1.get_rig().deal_damage(hk2)
+
+    hk1.deal_damage(hk2)
     hk1.get_rig().remove_asset(get_asset("Data Spike"))
-    hk1.get_rig().deal_damage(hk2)
-    hk1.get_rig().add_asset(get_asset("Data Spike"))
-    hk1.get_rig().deal_damage(hk2)
-    hk1.get_rig().deal_damage(hk2)
+    hk1.deal_damage(hk2)
+    print(hk2.rig_condition())
+    hk2.get_rig().damage = -2
+    print(hk2.rig_condition())
+    hk2.add_asset(get_asset("Hardware Patch"))
+    hk2.upgrade_rig()
+    hk2.add_asset(get_asset("Hardware Patch"))
+    hk2.upgrade_rig()
+    print(hk2.rig_condition())
+    hk2.get_rig().broken = False
+    print(hk2.get_rig().broken)
+    hk1.deal_damage(hk2)
+    print(hk2.rig_condition())
+    hk1.deal_damage(hk2)
+    print(hk2.rig_condition())
+    hk1.deal_damage(hk2)
+    print(hk2.rig_condition())
+    hk1.deal_damage(hk2)
+    print(hk2.rig_condition())
+
+
+    # hk1.get_rig().add_asset(get_asset("Data Spike"))
+    # hk1.get_rig().list_storage()
+    # hk1.deal_damage(hk2)
+    # hk1.deal_damage(hk2)
     print(f"--- Concluded battle testing ---\n")
 
 
-
-
-    print(f"--- Concluded rig storage extraction testing ---\n")
 
 def single_asset_transfer():
     hk1, hk2 = starting_procedure_test()
@@ -113,6 +133,8 @@ def upgrade_rig_level_test():
     hk1.add_asset(get_asset("Hardware Patch"))
     hk1.upgrade_rig()
     hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.upgrade_rig()
+    hk1.add_asset(get_asset("Hardware Patch"))
     hk1.remove_rig()
     hk1.upgrade_rig()
 
@@ -122,12 +144,10 @@ def upgrade_rig_level_test():
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
-# battle_test()
+battle_test()
 # single_asset_transfer()
 # extract_rig_storage_test()
 # consume_item_test()
 # encrypt_asset_test()
-
-
-upgrade_rig_level_test()
+#upgrade_rig_level_test()
 

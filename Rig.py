@@ -7,8 +7,10 @@ Username: <broty041>
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
 
+
 class Rig:
     class_type = "rig"
+
     def __init__(self, name, owner):
         self.name = name
         self.owner = owner
@@ -16,7 +18,6 @@ class Rig:
         self.__damage = 0
         self.__max_damage = 2
         self.__broken = False
-        self.__damage_reduction = 1
         self.__upgrade_level = 0
         self.__display_add_print = True
         self.__storage_size = 5
@@ -100,38 +101,5 @@ class Rig:
                 return idx
         return None
 
-
-
-
-
-
-
-    # --- Battle Related Methods ---
-    def pre_attack_check(self, enemy):
-        if enemy.get_rig().broken is True:
-            print(f"Unable to attack a broken rig.")
-            return False
-
-        elif self.search_storage("Data Spike") is None:
-            print("No Data Spike's in storage, cannot deal damage.")
-            return False
-
-        return True
-
-    def deal_damage(self, enemy):
-        if self.pre_attack_check(enemy):
-            self.consume_item("Data Spike")
-            enemy.get_rig().damage = 1
-            print(f"{self.name} attacked {enemy.name}")
-
-        if enemy.get_rig().damage >= enemy.get_rig().max_damage:
-            enemy.get_rig().broken = True
-
-
-
-
     def __str__(self):
         return self.name
-
-
-

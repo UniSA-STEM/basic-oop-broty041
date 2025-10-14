@@ -139,10 +139,10 @@ class Hacker:
             item.set_encryption(status)
             print(f"{item.name} encrypted.")
 
+
     # --- General Methods ---
 
     def upgrade_rig(self):
-
         hware_patch = Asset("Hardware Patch", "Used to upgrade rigs.")
         if self.search_inventory(hware_patch) is None:
             print(f"No Hardware Patch in inventory, cannot upgrade {self.name}'s rig level.")
@@ -152,8 +152,10 @@ class Hacker:
             self.consume_item(hware_patch)
             self.get_rig().upgrade = 1
             self.get_rig().storage = 1
+            self.get_rig().max_damage = 1
             print(f"{self.name}'s rig upgraded to level {self.get_rig().upgrade}."
-                  f"\nRig now has {self.get_rig().storage} inventory slots.")
+                  f"\nRig now has {self.get_rig().storage} inventory slots."
+                  f"\n{self.name} total HP is now {self.get_rig().max_damage}")
 
     def start_journey(self, rig_name):
         cryp_tok = Asset("CryptoToken", "Used to acquire or repair rigs.")
@@ -163,6 +165,50 @@ class Hacker:
             self.__equipped_rig = Rig(rig_name, self)
             self.__inventory.remove(self.__inventory[self.search_inventory(cryp_tok)])
             print(f"Welcome to {self.name}'s H.E.V. Mark IV protective system.")
+
+
+    # --- Battle Related Methods ---
+
+    def pre_attack_check(self, enemy):
+        d_spike = Asset("Data Spike", "Used in battles.")
+
+        if enemy.get_rig().broken is True:
+            print(f"Unable to attack a broken rig.")
+            return False
+
+        elif self.get_rig().search_storage(d_spike) is None:
+            print("No Data Spike in storage, cannot deal damage.")
+            return False
+
+        return True
+
+    def deal_damage(self, enemy):
+        d_spike = Asset("Data Spike", "Used in battles.")
+
+        if self.pre_attack_check(enemy):
+            self.consume_item(d_spike)
+            enemy.get_rig().damage = 1
+            print(f"{self.name} attacked {enemy.name}"
+                  f"\n{enemy.name} rig: {enemy.get_rig().damage}/{enemy.get_rig().max_damage} Damage")
+
+        if enemy.get_rig().damage >= enemy.get_rig().max_damage:
+            enemy.get_rig().broken = True
+
+    def rig_condition(self):
+        damage = self.get_rig().damage
+        level = self.get_rig().upgrade
+        half = self.get_rig().max_damage / 2
+
+        if damage == 0:
+            return f"Pristine (Level {level})"
+        elif damage == self.get_rig().max_damage:
+            return f"Broken (Level {level})"
+        elif damage > half:
+            return f"Poor (Level {level})"
+        else:
+            return f"Usable (Level {level})"
+
+
 
     def __str__(self):
         return f"{self.name}"
