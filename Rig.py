@@ -19,6 +19,7 @@ class Rig:
         self.__damage_reduction = 1
         self.__upgrade_level = 0
         self.__display_add_print = True
+        self.__storage_size = 5
 
     # --- Getters and Setters ---
     def list_storage(self):
@@ -56,14 +57,21 @@ class Rig:
     def get_upgrade_level(self):
         return self.__upgrade_level
 
-    def set_upgrade_level(self):
-        self.__upgrade_level += 1
+    def set_upgrade_level(self, level):
+        self.__upgrade_level += level
+
+    def get_storage_size(self):
+        return self.__storage_size
+
+    def set_storage_size(self, level):
+        self.__storage_size += level
 
     # --- Property Attributes ---
     damage = property(get_damage, set_damage)
     max_damage = property(get_max_damage, set_max_damage)
     broken = property(get_broken, set_broken)
     upgrade = property(get_upgrade_level, set_upgrade_level)
+    storage = property(get_storage_size, set_storage_size)
 
     # --- Storage Related Methods ---
     def add_asset(self, item):

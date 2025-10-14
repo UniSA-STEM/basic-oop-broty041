@@ -42,6 +42,9 @@ class Hacker:
     def set_display_add_print(self, flag):
         self.__display_add_print = flag
 
+    def remove_rig(self):
+        self.__equipped_rig = None
+
     # --- Property Attributes ---
     trace = property(get_trace, set_trace)
 
@@ -124,7 +127,7 @@ class Hacker:
             print(f"No {item}s in storage.")
             return None
         spent_item = self.__inventory.remove(self.__inventory[idx])
-        print(f"{self.name} used {item.name}")
+        print(f"{self.name} used a {item.name}")
         return spent_item
 
     def encrypt_asset(self, item, status):
@@ -138,14 +141,19 @@ class Hacker:
 
     # --- General Methods ---
 
-    def upgrade_rig(self, level):
+    def upgrade_rig(self):
+
         hware_patch = Asset("Hardware Patch", "Used to upgrade rigs.")
         if self.search_inventory(hware_patch) is None:
-            print(f"No Hardware Patch in inventory, cannot encrypt {item.name}.")
+            print(f"No Hardware Patch in inventory, cannot upgrade {self.name}'s rig level.")
+        elif self.__equipped_rig is None:
+            print(f"Please equip a rig to upgrade.")
         else:
-            self.consume_item(sec_chip)
-            item.set_encryption(status)
-            print(f"{item.name} encrypted.")
+            self.consume_item(hware_patch)
+            self.get_rig().upgrade = 1
+            self.get_rig().storage = 1
+            print(f"{self.name}'s rig upgraded to level {self.get_rig().upgrade}."
+                  f"\nRig now has {self.get_rig().storage} inventory slots.")
 
     def start_journey(self, rig_name):
         cryp_tok = Asset("CryptoToken", "Used to acquire or repair rigs.")

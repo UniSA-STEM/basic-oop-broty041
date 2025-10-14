@@ -107,6 +107,18 @@ def encrypt_asset_test():
     hk1.encrypt_asset(get_asset("Security Chip"), True)
     hk1.list_inventory()
 
+def upgrade_rig_level_test():
+    hk1, hk2 = starting_procedure_test()
+    hk1.upgrade_rig()
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.upgrade_rig()
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.remove_rig()
+    hk1.upgrade_rig()
+
+
+
+
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
@@ -114,7 +126,8 @@ def encrypt_asset_test():
 # single_asset_transfer()
 # extract_rig_storage_test()
 # consume_item_test()
+# encrypt_asset_test()
 
-encrypt_asset_test()
 
+upgrade_rig_level_test()
 
