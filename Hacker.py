@@ -12,17 +12,19 @@ from Rig import Rig
 
 
 class Hacker:
+    class_type = "hacker"
 
     def __init__(self, name):
         self.name = name
         self.__inventory = [Asset("CryptoToken", "Used to acquire or repair rigs.")]
         self.__equipped_rig = None
         self.__trace_level = 0
+        self.__display_add_print = True
 
     # --- Getters and Setters ---
-    def get_inventory(self):
+    def list_inventory(self):
         if not self.__inventory:
-            print("Inventory is empty.")
+            print(f"{self.name}'s inventory is empty.")
         else:
             print(f"Contents of {self.name}'s inventory:")
             for i in self.__inventory:
@@ -37,26 +39,97 @@ class Hacker:
     def set_trace(self, trace_change):
         self.__trace_level += trace_change
 
+    def set_display_add_print(self, flag):
+        self.__display_add_print = flag
+
     # --- Property Attributes ---
     trace = property(get_trace, set_trace)
 
+    # --- Storage Related Methods ---
+    def add_asset(self, item):
+        if self.__display_add_print:
+            print(f"Added {item.name} to {self.name}'s inventory.")
+        self.__inventory.append(item)
 
-    # --- General Methods ---
+    def remove_asset(self, item):
+        if self.search_inventory(item) is None:
+            print(f"No {item.name}'s in {self.name}'s inventory.")
+        else:
+            print(f"{item.name} removed from {self.owner}'s inventory.")
+            self.__inventory.remove(self.__inventory[self.search_inventory(item)])
+
     def search_inventory(self, item):
         for idx, i in enumerate(self.__inventory):
-            if item == i.name:
+            if item == i:
                 return idx
         return None
 
-    def add_asset(self, item):
-        self.__inventory.append(item)
+    def extract_rig_check(self, from_object, to_object):
+        storage_copy = from_object.get_storage().copy()
+        if from_object.broken is False:
+            print(f"{from_object.owner}'s rig must be broken before extracting assets.")
+            return False
+
+        if len(storage_copy) == 0:
+            print(f"{from_object.name}'s storage is empty. Nothing to extract.")
+            return False
+
+        if to_object.search_inventory(Asset("Removable Drive", "Found in rigs and used for extraction.")) is None:
+            print("No Removable Drive in rig storage.\n"
+                  "A Removable Drive is required to extract another broken rig's assets.")
+            return False
+
+        return True
+
+    def extract_rigs_storage(self, from_object, to_object):
+
+        if self.extract_rig_check(from_object, to_object):
+
+            print("Starting rig extraction.")
+
+            to_object.set_display_add_print(False)
+            loop_storage = from_object.get_storage().copy()
+            unsecure_count = 0
+            secure_count = 0
+
+            for i in loop_storage:
+                if i.get_encryption() is False:
+                    self.asset_transfer(from_object, to_object, i)
+                    unsecure_count += 1
+                else:
+                    secure_count += 1
+
+            print(f"{unsecure_count} unsecured assets transferred from {from_object} to {to_object}."
+                  f"\n{secure_count} secure assets not transferred.")
+
+            to_object.set_display_add_print(True)
+
+            print("Completed rig extraction.")
+
+    def asset_transfer(self, from_object, to_object, item):
+
+        idx = from_object.search_storage(item)
+        transfer_item = from_object.get_storage()[idx]
+
+        if isinstance(to_object, Rig):
+            to_object.add_asset(transfer_item)
+        elif isinstance(to_object, Hacker):
+            to_object.add_asset(transfer_item)
+        else:
+            print("Invalid to_object.")
+
+    def encrypt_asset(self, item):
+
+
+    # --- General Methods ---
 
     def start_journey(self, rig_name):
-        if self.search_inventory("CryptoToken") is None:
+        cryp_tok = Asset("CryptoToken", "Used to acquire or repair rigs.")
+        if self.search_inventory(cryp_tok) is None:
             print("No CryptoToken's in inventory, cannot equip rig.")
         else:
             self.__equipped_rig = Rig(rig_name, self)
-            self.__inventory.remove(self.__inventory[self.search_inventory("CryptoToken")])
+            self.__inventory.remove(self.__inventory[self.search_inventory(cryp_tok)])
             print(f"Welcome to {self.name}'s H.E.V. Mark IV protective system.")
 
     def __str__(self):

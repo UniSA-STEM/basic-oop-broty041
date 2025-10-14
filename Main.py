@@ -9,20 +9,35 @@ This is my own work as defined by the University's Academic Misconduct Policy.
 from Hacker import Hacker
 from Asset import Asset
 
+asset_dict = {
+    "CryptoToken": "Used to acquire or repair rigs.",
+    "Data Spike": "Used in battles.",
+    "Removable Drive": "Found in rigs and used for extraction.",
+    "Security Chip": "Used to encrypt or decrypt assets.",
+    "Hardware Patch": "Used to upgrade rigs."
+}
+
+def get_asset(name):
+
+    assets = asset_dict
+    return Asset(name, assets[name])
+
 
 # Load char and rig with items for testing
 def fill_inv_stor(char_rig):
-    char_rig.add_asset(Asset("CryptoToken", "Used to acquire or repair rigs."))
-    char_rig.add_asset(Asset("CryptoToken", "Used to acquire or repair rigs."))
-    char_rig.add_asset(Asset("CryptoToken", "Used to acquire or repair rigs."))
-    char_rig.add_asset(Asset("Data Spike", "Used in battles."))
-    char_rig.add_asset(Asset("Data Spike", "Used in battles."))
-    char_rig.add_asset(Asset("Removable Drive", "Found in rigs and used for extraction."))
-    char_rig.add_asset(Asset("Removable Drive", "Found in rigs and used for extraction."))
-    char_rig.add_asset(Asset("Security Chip", "Used to encrypt or decrypt assets."))
-    char_rig.add_asset(Asset("Security Chip", "Used to encrypt or decrypt assets."))
-    char_rig.add_asset(Asset("Hardware Patch", "Used to upgrade rigs."))
-    char_rig.add_asset(Asset("Hardware Patch", "Used to upgrade rigs."))
+    char_rig.add_asset(get_asset("CryptoToken"))
+    char_rig.add_asset(get_asset("CryptoToken"))
+    char_rig.add_asset(get_asset("Data Spike"))
+    char_rig.add_asset(get_asset("Data Spike"))
+    char_rig.add_asset(get_asset("Removable Drive"))
+    char_rig.add_asset(get_asset("Removable Drive"))
+    char_rig.add_asset(get_asset("Security Chip"))
+    char_rig.add_asset(get_asset("Security Chip"))
+    char_rig.add_asset(get_asset("Hardware Patch"))
+    char_rig.add_asset(get_asset("Hardware Patch"))
+
+
+
 
 
 def starting_procedure_test():
@@ -45,31 +60,45 @@ def battle_test():
     fill_inv_stor(hk2.get_rig())
 
     hk1.get_rig().deal_damage(hk2)
-    hk1.get_rig().remove_asset("Data Spike")
+    hk1.get_rig().remove_asset(get_asset("Data Spike"))
     hk1.get_rig().deal_damage(hk2)
-    hk1.get_rig().add_asset(Asset("Data Spike", "Used in battles."))
+    hk1.get_rig().add_asset(get_asset("Data Spike"))
     hk1.get_rig().deal_damage(hk2)
     hk1.get_rig().deal_damage(hk2)
     print(f"--- Concluded battle testing ---\n")
 
+
+
+
+    print(f"--- Concluded rig storage extraction testing ---\n")
+
+def single_asset_transfer():
+    hk1, hk2 = starting_procedure_test()
+    hk2.get_rig().add_asset(get_asset("CryptoToken"))
+    hk1.asset_transfer(hk2.get_rig(), hk1, get_asset("CryptoToken"))
+    hk2.get_rig().list_storage()
+    hk1.list_inventory()
 
 def extract_rig_storage_test():
     print(f"--- Executing rig storage extraction testing ---")
     hk1, hk2 = starting_procedure_test()
     fill_inv_stor(hk2.get_rig())
     hk2.get_rig().broken = True
-    hk1.get_rig().extract_rig_assets(hk2)
-    hk1.get_inventory()
-    hk2.get_rig().get_storage()
-    hk1.add_asset(Asset("Removable Drive", "Found in rigs and used for extraction."))
-    hk1.get_rig().extract_rig_assets(hk2)
+    hk1.extract_rigs_storage(hk2.get_rig(), hk1)
 
+    hk1.add_asset(get_asset("Removable Drive"))
+    hk1.extract_rigs_storage(hk2.get_rig(), hk1)
+
+
+    # hk2.get_rig().list_storage()
     print(f"--- Concluded rig storage extraction testing ---\n")
 
 
 # --- Main Testing Sequence ---
-starting_procedure_test()
+# starting_procedure_test()
+#
+# battle_test()
 
-battle_test()
+single_asset_transfer()
 
 extract_rig_storage_test()

@@ -9,6 +9,7 @@ This is my own work as defined by the University's Academic Misconduct Policy.
 
 
 class Asset:
+    class_type = "asset"
     def __init__(self, name, description):
         self.name = name
         self.description = description
@@ -16,6 +17,12 @@ class Asset:
 
     def get_encryption(self):
         return self.__encryption
+
+    def set_encryption(self, status):
+        self.__encryption = status
+
+
+
 
     def __eq__(self, other):
         if isinstance(other, Asset):

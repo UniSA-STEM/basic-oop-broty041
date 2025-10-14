@@ -7,8 +7,8 @@ Username: <broty041>
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
 
-
 class Rig:
+    class_type = "rig"
     def __init__(self, name, owner):
         self.name = name
         self.owner = owner
@@ -18,17 +18,18 @@ class Rig:
         self.__broken = False
         self.__damage_reduction = 1
         self.__level = 1
+        self.__display_add_print = True
 
     # --- Getters and Setters ---
-    def get_storage(self):
+    def list_storage(self):
         if not self.__storage:
-            print("Inventory is empty.")
+            print(f"{self.owner}'s rig storage is empty.")
         else:
             print(f"Contents of {self.name}'s storage:")
             for i in self.__storage:
                 print(i)
 
-    def getter_storage(self):
+    def get_storage(self):
         return self.__storage
 
     def get_damage(self):
@@ -49,6 +50,9 @@ class Rig:
     def set_broken(self, status):
         self.__broken = status
 
+    def set_display_add_print(self, flag):
+        self.__display_add_print = flag
+
     # --- Property Attributes ---
     damage = property(get_damage, set_damage)
     max_damage = property(get_max_damage, set_max_damage)
@@ -56,12 +60,15 @@ class Rig:
 
     # --- Storage Related Methods ---
     def add_asset(self, item):
+        if self.__display_add_print:
+            print(f"{item.name} added to {self.owner}'s rig storage.")
         self.__storage.append(item)
 
     def remove_asset(self, item):
         if self.search_storage(item) is None:
             print(f"No {item.name}'s in inventory.")
         else:
+            print(f"{item.name} removed from {self.owner}'s rig storage.")
             self.__storage.remove(self.__storage[self.search_storage(item)])
 
     def consume_item(self, item):
@@ -74,46 +81,14 @@ class Rig:
 
     def search_storage(self, item):
         for idx, i in enumerate(self.__storage):
-            if item == i.name:
+            if item == i:
                 return idx
         return None
 
-    def extract_rig_assets_check(self, target):
-        storage_copy = target.get_rig().getter_storage().copy()
-        if target.get_rig().broken is False:
-            print(f"{target.owner}'s rig must be broken before extracting assets.")
-            return False
-
-        if len(storage_copy) == 0:
-            print(f"{target.name}'s storage is empty. Nothing to extract.")
-            return False
-
-        if self.search_storage("Removable Drive") is None:
-            print("No Removable Drive's in your rig's storage.\n"
-                  "A Removable Drive is required to extract another broken rig's assets.")
-            return False
-
-        return True
 
 
-    def extract_rig_assets(self, target):
-        owner = self.owner
-        storage_copy = target.get_rig().getter_storage().copy()
-        unsecure_count = 0
-        secure_count = 0
-        if self.extract_rig_assets_check(target):
-            for i in storage_copy:
-                if i.get_encryption() is False:
-                    print(i)
-                    owner.add_asset(i)
-                    target.get_rig().remove_asset(i.name)
-                    unsecure_count += 1
-                else:
-                    secure_count += 1
-            print(f"{unsecure_count} unsecured assets transferred from {self.owner} to {target.get_rig().owner}."
-                  f"\n{secure_count} secure assets not transferred.")
-        else:
-            print("This rig has no items.")
+
+
 
 
     # --- Battle Related Methods ---
@@ -141,5 +116,7 @@ class Rig:
 
 
     def __str__(self):
-        return f"{self.name}\n{[i for i in self.__storage]}"
+        return self.name
+
+
 
