@@ -118,15 +118,39 @@ class Hacker:
         else:
             print("Invalid to_object.")
 
-    def encrypt_asset(self, item):
+    def consume_item(self, item):
+        idx = self.search_inventory(item)
+        if idx is None:
+            print(f"No {item}s in storage.")
+            return None
+        spent_item = self.__inventory.remove(self.__inventory[idx])
+        print(f"{self.name} used {item.name}")
+        return spent_item
 
+    def encrypt_asset(self, item, status):
+        sec_chip = Asset("Security Chip", "Used to encrypt or decrypt assets.")
+        if self.search_inventory(sec_chip) is None:
+            print(f"No Security Chip in inventory, cannot encrypt {item.name}.")
+        else:
+            self.consume_item(sec_chip)
+            item.set_encryption(status)
+            print(f"{item.name} encrypted.")
 
     # --- General Methods ---
+
+    def upgrade_rig(self, level):
+        hware_patch = Asset("Hardware Patch", "Used to upgrade rigs.")
+        if self.search_inventory(hware_patch) is None:
+            print(f"No Hardware Patch in inventory, cannot encrypt {item.name}.")
+        else:
+            self.consume_item(sec_chip)
+            item.set_encryption(status)
+            print(f"{item.name} encrypted.")
 
     def start_journey(self, rig_name):
         cryp_tok = Asset("CryptoToken", "Used to acquire or repair rigs.")
         if self.search_inventory(cryp_tok) is None:
-            print("No CryptoToken's in inventory, cannot equip rig.")
+            print("No CryptoToken in inventory, cannot equip rig.")
         else:
             self.__equipped_rig = Rig(rig_name, self)
             self.__inventory.remove(self.__inventory[self.search_inventory(cryp_tok)])

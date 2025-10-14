@@ -89,16 +89,32 @@ def extract_rig_storage_test():
     hk1.add_asset(get_asset("Removable Drive"))
     hk1.extract_rigs_storage(hk2.get_rig(), hk1)
 
-
     # hk2.get_rig().list_storage()
     print(f"--- Concluded rig storage extraction testing ---\n")
+
+def consume_item_test():
+    hk1, hk2 = starting_procedure_test()
+    hk1.add_asset(get_asset("Removable Drive"))
+    hk1.list_inventory()
+    hk1.consume_item(get_asset("Removable Drive"))
+    hk1.list_inventory()
+
+def encrypt_asset_test():
+    hk1, hk2 = starting_procedure_test()
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.list_inventory()
+    hk1.encrypt_asset(get_asset("Security Chip"), True)
+    hk1.list_inventory()
 
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
-#
 # battle_test()
+# single_asset_transfer()
+# extract_rig_storage_test()
+# consume_item_test()
 
-single_asset_transfer()
+encrypt_asset_test()
 
-extract_rig_storage_test()
+

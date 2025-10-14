@@ -17,7 +17,7 @@ class Rig:
         self.__max_damage = 2
         self.__broken = False
         self.__damage_reduction = 1
-        self.__level = 1
+        self.__upgrade_level = 0
         self.__display_add_print = True
 
     # --- Getters and Setters ---
@@ -53,10 +53,17 @@ class Rig:
     def set_display_add_print(self, flag):
         self.__display_add_print = flag
 
+    def get_upgrade_level(self):
+        return self.__upgrade_level
+
+    def set_upgrade_level(self):
+        self.__upgrade_level += 1
+
     # --- Property Attributes ---
     damage = property(get_damage, set_damage)
     max_damage = property(get_max_damage, set_max_damage)
     broken = property(get_broken, set_broken)
+    upgrade = property(get_upgrade_level, set_upgrade_level)
 
     # --- Storage Related Methods ---
     def add_asset(self, item):

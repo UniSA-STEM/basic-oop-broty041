@@ -15,13 +15,15 @@ class Asset:
         self.description = description
         self.__encryption = False
 
+    # --- Getters and Setters ---
     def get_encryption(self):
         return self.__encryption
 
     def set_encryption(self, status):
         self.__encryption = status
 
-
+    # --- Property Attributes ---
+    encrypt = property(get_encryption, set_encryption)
 
 
     def __eq__(self, other):
