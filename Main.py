@@ -123,9 +123,32 @@ def encrypt_asset_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Security Chip"))
     hk1.add_asset(get_asset("Security Chip"))
-    hk1.list_inventory()
-    hk1.encrypt_asset(get_asset("Security Chip"), True)
-    hk1.list_inventory()
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
+    hk2.add_asset(get_asset("Security Chip"))
+    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
+    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
+    hk2.add_asset(get_asset("Security Chip"))
+    print(hk1.get_trace())
+    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
+    print(hk1.get_trace())
+    #hk1.encrypt_asset(hk2, get_asset("Security Chip"))
+    #hk2.list_inventory()
+
+    #hk2.add_asset(get_asset("Security Chip"))
+    #hk2.get_rig().add_asset(get_asset("Security Chip"))
+    #hk1.encrypt_asset(hk2.get_rig(), get_asset("Security Chip"))
+    # hk1.encrypt_asset(hk2.get_rig(), get_asset("Security Chip"))
+    #hk1.encrypt_asset(hk1, get_asset("Security Chip"))
+    # hk2.get_rig().list_storage()
+    # hk1.list_inventory()
+    # hk2.get_rig().add_asset(get_asset("Security Chip"))
+
+
+
 
 def upgrade_rig_level_test():
     hk1, hk2 = starting_procedure_test()
@@ -144,10 +167,10 @@ def upgrade_rig_level_test():
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
-battle_test()
+#battle_test()
 # single_asset_transfer()
 # extract_rig_storage_test()
 # consume_item_test()
-# encrypt_asset_test()
+encrypt_asset_test()
 #upgrade_rig_level_test()
 

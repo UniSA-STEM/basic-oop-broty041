@@ -81,21 +81,27 @@ class Rig:
         self.__storage.append(item)
 
     def remove_asset(self, item):
-        if self.search_storage(item) is None:
+        if self.find_asset_index(item) is None:
             print(f"No {item.name}'s in inventory.")
         else:
             print(f"{item.name} removed from {self.owner}'s rig storage.")
-            self.__storage.remove(self.__storage[self.search_storage(item)])
+            self.__storage.remove(self.__storage[self.find_asset_index(item)])
 
     def consume_item(self, item):
-        idx = self.search_storage(item)
+        idx = self.find_asset_index(item)
         if idx is None:
             print(f"No {item}s in storage.")
             return None
         spent_item = self.__storage.remove(self.__storage[idx])
         return spent_item
 
-    def search_storage(self, item):
+    def search_assets(self, item):
+        for idx, i in enumerate(self.__storage):
+            if item == i:
+                return i
+        return None
+
+    def find_asset_index(self, item):
         for idx, i in enumerate(self.__storage):
             if item == i:
                 return idx

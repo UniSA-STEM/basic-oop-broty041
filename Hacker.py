@@ -49,19 +49,29 @@ class Hacker:
     trace = property(get_trace, set_trace)
 
     # --- Storage Related Methods ---
+    def get_asset(self):
+        return self.__inventory
+
     def add_asset(self, item):
         if self.__display_add_print:
             print(f"Added {item.name} to {self.name}'s inventory.")
         self.__inventory.append(item)
 
     def remove_asset(self, item):
-        if self.search_inventory(item) is None:
+        if self.find_asset_index(item) is None:
             print(f"No {item.name}'s in {self.name}'s inventory.")
         else:
             print(f"{item.name} removed from {self.owner}'s inventory.")
-            self.__inventory.remove(self.__inventory[self.search_inventory(item)])
+            self.__inventory.remove(self.__inventory[self.find_asset_index(item)])
 
-    def search_inventory(self, item):
+    def search_assets(self, item):
+        for idx, i in enumerate(self.__inventory):
+            if item == i:
+                return i
+        return None
+
+
+    def find_asset_index(self, item):
         for idx, i in enumerate(self.__inventory):
             if item == i:
                 return idx
@@ -77,7 +87,7 @@ class Hacker:
             print(f"{from_object.name}'s storage is empty. Nothing to extract.")
             return False
 
-        if to_object.search_inventory(Asset("Removable Drive", "Found in rigs and used for extraction.")) is None:
+        if to_object.find_asset_index(Asset("Removable Drive", "Found in rigs and used for extraction.")) is None:
             print("No Removable Drive in rig storage.\n"
                   "A Removable Drive is required to extract another broken rig's assets.")
             return False
@@ -111,7 +121,7 @@ class Hacker:
 
     def asset_transfer(self, from_object, to_object, item):
 
-        idx = from_object.search_storage(item)
+        idx = from_object.find_asset_index(item)
         transfer_item = from_object.get_storage()[idx]
 
         if isinstance(to_object, Rig):
@@ -122,7 +132,7 @@ class Hacker:
             print("Invalid to_object.")
 
     def consume_item(self, item):
-        idx = self.search_inventory(item)
+        idx = self.find_asset_index(item)
         if idx is None:
             print(f"No {item}s in storage.")
             return None
@@ -130,21 +140,68 @@ class Hacker:
         print(f"{self.name} used a {item.name}")
         return spent_item
 
-    def encrypt_asset(self, item, status):
+
+    # --- Encryption, decryption and trace methods ---
+    def trace_check(self, target):
+        print(f"current trace {self.trace} {self.name}")
+        notorious_warning = "YOU ARE NOTORIOUS.\nYou cannot attack or encrypt when trace level is 5."
+
+        if target.name is self.name:
+            return True
+
+        if self.trace == 5:
+            print(notorious_warning)
+            return False
+
+        self.trace = 1
+        print(f"ALERT! RISKY ACTION DETECTED!"
+              f"\nTRACE LEVEL NOW: {self.trace}")
+        if self.trace == 5:
+            print(notorious_warning)
+        return True
+
+    def encrypt_decrypt_check(self, target, item):
         sec_chip = Asset("Security Chip", "Used to encrypt or decrypt assets.")
-        if self.search_inventory(sec_chip) is None:
+        asset_found = target.not_encrypted_search(target, item)
+        if self.find_asset_index(sec_chip) is None:
             print(f"No Security Chip in inventory, cannot encrypt {item.name}.")
-        else:
-            self.consume_item(sec_chip)
-            item.set_encryption(status)
-            print(f"{item.name} encrypted.")
+            return False
+
+        elif target.find_asset_index(item) is None:
+            print(f"Can't find a {item.name}.")
+            return False
+
+        elif asset_found is None:
+            print(f"{item.name} is already encrypted.")
+            return False
+
+        elif asset_found.encrypt is True:
+            print(f"{item.name} is already encrypted.")
+            return False
+        return True
+
+    def not_encrypted_search(self, target, item):
+        for i in target.get_asset():
+            if i.name == item.name:
+                if not i.encrypt:
+                    return i
+        return None
+
+    def encrypt_asset(self, target, item):
+        sec_chip = Asset("Security Chip", "Used to encrypt or decrypt assets.")
+        asset_found = target.not_encrypted_search(target, item)
+        if self.encrypt_decrypt_check(target, item):
+            if self.trace_check(target):
+                self.consume_item(sec_chip)
+                asset_found.encrypt = True
+                print(f"{asset_found.name} encrypted.")
 
 
     # --- General Methods ---
 
     def upgrade_rig(self):
         hware_patch = Asset("Hardware Patch", "Used to upgrade rigs.")
-        if self.search_inventory(hware_patch) is None:
+        if self.find_asset_index(hware_patch) is None:
             print(f"No Hardware Patch in inventory, cannot upgrade {self.name}'s rig level.")
         elif self.__equipped_rig is None:
             print(f"Please equip a rig to upgrade.")
@@ -159,11 +216,11 @@ class Hacker:
 
     def start_journey(self, rig_name):
         cryp_tok = Asset("CryptoToken", "Used to acquire or repair rigs.")
-        if self.search_inventory(cryp_tok) is None:
+        if self.find_asset_index(cryp_tok) is None:
             print("No CryptoToken in inventory, cannot equip rig.")
         else:
             self.__equipped_rig = Rig(rig_name, self)
-            self.__inventory.remove(self.__inventory[self.search_inventory(cryp_tok)])
+            self.__inventory.remove(self.__inventory[self.find_asset_index(cryp_tok)])
             print(f"Welcome to {self.name}'s H.E.V. Mark IV protective system.")
 
 
@@ -176,7 +233,7 @@ class Hacker:
             print(f"Unable to attack a broken rig.")
             return False
 
-        elif self.get_rig().search_storage(d_spike) is None:
+        elif self.get_rig().find_asset_index(d_spike) is None:
             print("No Data Spike in storage, cannot deal damage.")
             return False
 
