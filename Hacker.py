@@ -36,6 +36,9 @@ class Hacker:
     def get_rig(self):
         return self.__equipped_rig
 
+    def start_rig(self, rig_name):
+        self.__equipped_rig = Rig(rig_name, self)
+
     def get_trace(self):
         return self.__trace_level
 
@@ -86,7 +89,7 @@ class Hacker:
             self.__inventory.remove(self.__inventory[self.find_asset_index(asset)])
 
     def search_assets(self, asset):
-        for idx, i in enumerate(self.__inventory):
+        for i in self.__inventory:
             if asset == i:
                 return i
         return None
@@ -103,6 +106,16 @@ class Hacker:
             if asset == i:
                 return idx
         return None
+
+    def scan_and_remove(self, asset):
+        for i in self.__inventory:
+            if asset == i.name:
+
+                self.__inventory.remove(i)
+
+                return i
+        return None
+
 
     def extract_rig_check(self, from_object, to_object):
         storage_copy = from_object.get_asset().copy()
@@ -353,8 +366,8 @@ class Hacker:
         if self.find_asset_index(cryp_tok) is None:
             print("No CryptoToken in inventory, cannot equip rig.")
         else:
-            self.__equipped_rig = Rig(rig_name, self)
-            self.__inventory.remove(self.__inventory[self.find_asset_index(cryp_tok)])
+            self.start_rig(rig_name)
+            self.scan_and_remove("CryptoToken")
             print(f"Welcome to {self.name}'s H.E.V. Mark IV protective system.")
 
     def chop_shop(self):
@@ -468,4 +481,6 @@ class Hacker:
             return f"Usable (Level {level})"
 
     def __str__(self):
-        return f"{self.name}"
+        return (f"{self.name} {self.__equipped_rig} {self.__trace_level}\n"
+                f"Inventory: \n" +
+                f"\n".join(str(i) for i in self.__inventory))

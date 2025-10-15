@@ -227,7 +227,20 @@ def multi_asset_transfer_test():
     #hk1.get_rig().list_assets()
     #hk1.list_assets()
 
+def scan_and_remove_test():
+    hk1, hk2 = starting_procedure_test()
+    hk1.list_assets()
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
 
+
+    hk1.get_rig().add_asset(get_asset("Hardware Patch"))
+    hk1.get_rig().list_assets()
+
+    print(hk1.get_rig().scan_and_remove("Hardware Patch"))
+    hk1.get_rig().list_assets()
+    print(hk1)
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
@@ -239,4 +252,5 @@ def multi_asset_transfer_test():
 # upgrade_rig_level_test()
 # chop_shop_test()
 # asset_transfer_test()
-multi_asset_transfer_test()
+# multi_asset_transfer_test()
+scan_and_remove_test()

@@ -6,7 +6,7 @@ ID: <110454503>
 Username: <broty041>
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
-
+from Asset import Asset
 
 class Rig:
     class_type = "rig"
@@ -14,7 +14,14 @@ class Rig:
     def __init__(self, name, owner):
         self.name = name
         self.owner = owner
-        self.__storage = []
+        self.__storage = [Asset("Data Spike",
+                                "Used in battles."),
+                          Asset("Data Spike",
+                                "Used in battles."),
+                          Asset("Removable Drive",
+                                "Found in rigs and "
+                                "used for extraction.")
+                          ]
         self.__damage = 0
         self.__max_damage = 2
         self.__broken = False
@@ -122,7 +129,14 @@ class Rig:
                     return i
         return None
 
+    def scan_and_remove(self, asset):
+        for i in self.__storage:
+            if asset == i.name:
 
+                self.__storage.remove(i)
+
+                return i
+        return None
 
 
     def __str__(self):
