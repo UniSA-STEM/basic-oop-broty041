@@ -25,7 +25,7 @@ def get_asset(name):
 
 # Load char and rig with items for testing
 def fill_inv_stor(char_rig):
-    char_rig.set_display_add_print(False)
+
     print(f"{char_rig} filled with items.")
     char_rig.add_asset(get_asset("CryptoToken"))
     char_rig.add_asset(get_asset("Data Spike"))
@@ -37,7 +37,7 @@ def fill_inv_stor(char_rig):
     char_rig.add_asset(get_asset("Removable Drive"))
     char_rig.add_asset(get_asset("Security Chip"))
     char_rig.add_asset(get_asset("Hardware Patch"))
-    char_rig.set_display_add_print(True)
+
 
 
 def starting_procedure_test():
@@ -187,12 +187,19 @@ def chop_shop_test():
 def asset_transfer_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+
     hk2.get_rig().add_asset(get_asset("Hardware Patch"))
     hk1.get_rig().add_asset(get_asset("Hardware Patch"))
+    hk1.get_rig().add_asset(get_asset("Hardware Patch"))
+
+    hk1.get_rig().add_asset(get_asset("Hardware Patch"))
+
     hk2.add_asset(get_asset("Hardware Patch"))
-
+    hk1.list_assets()
     hk1.asset_transfer(hk1, hk1.get_rig(), get_asset("Hardware Patch"))
-
+    hk1.list_assets()
 
     # Does from_object asset exist?
 
@@ -201,6 +208,24 @@ def asset_transfer_test():
     # What if the class was different?
 
 
+def multi_asset_transfer_test():
+    hk1, hk2 = starting_procedure_test()
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk2.add_asset(get_asset("Hardware Patch"))
+
+    hk1.list_assets()
+
+    hk1.get_rig().list_assets()
+
+    hk1.multi_asset_transfer(hk1,hk2.get_rig())
+    #hk1.get_rig().list_assets()
+    #hk1.list_assets()
 
 
 
@@ -210,7 +235,8 @@ def asset_transfer_test():
 # single_asset_transfer()
 # extract_rig_storage_test()
 # consume_item_test()
-change_encryption_test()
+# change_encryption_test()
 # upgrade_rig_level_test()
 # chop_shop_test()
 # asset_transfer_test()
+multi_asset_transfer_test()

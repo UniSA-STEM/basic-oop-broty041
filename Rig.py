@@ -19,13 +19,12 @@ class Rig:
         self.__max_damage = 2
         self.__broken = False
         self.__upgrade_level = 0
-        self.__display_add_print = True
         self.__storage_size = 5
 
     # --- Getters and Setters ---
     def list_assets(self):
         if not self.__storage:
-            print(f"{self.owner}'s rig storage is empty.")
+            print(f"{self.owner}'s rig's storage is empty.")
         else:
             print(f"{self.name} contains {len(self.get_asset())} items::")
             for i in self.__storage:
@@ -52,9 +51,6 @@ class Rig:
     def set_broken(self, status):
         self.__broken = status
 
-    def set_display_add_print(self, flag):
-        self.__display_add_print = flag
-
     def get_upgrade_level(self):
         return self.__upgrade_level
 
@@ -80,14 +76,9 @@ class Rig:
     # --- Storage Related Methods ---
     def add_asset(self, asset):
         if len(self.get_asset()) >= self.get_storage_size():
-            if self.__display_add_print:
-                print("Storage is full.")
+            print("Storage is full.")
             return False
-
         self.__storage.append(asset)
-
-        if self.__display_add_print:
-            print(f"{asset.name} added to {self.owner}'s rig storage.")
         return True
 
     def remove_asset(self, asset):

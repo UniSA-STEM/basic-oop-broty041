@@ -19,7 +19,6 @@ class Hacker:
         self.__inventory = [Asset("CryptoToken", "Used to acquire or repair rigs.")]
         self.__equipped_rig = None
         self.__trace_level = 0
-        self.__display_add_print = True
         self.__attack_state = 0
         # Encryption flag True means hacker can encrypt.
         self.__encryption_flag = True
@@ -29,7 +28,8 @@ class Hacker:
         if not self.__inventory:
             print(f"{self.name}'s inventory is empty.")
         else:
-            print(f"{self.name} contains {len(self.get_asset())} items::")
+            print(f"{self.name}'s inventory contains "
+                  f"{len(self.get_asset())} items::")
             for i in self.__inventory:
                 print(i)
 
@@ -44,9 +44,6 @@ class Hacker:
 
     def edit_trace(self, trace_change):
         self.__trace_level = trace_change
-
-    def set_display_add_print(self, flag):
-        self.__display_add_print = flag
 
     def remove_rig(self):
         self.__equipped_rig = None
@@ -86,7 +83,6 @@ class Hacker:
         if self.find_asset_index(asset) is None:
             print(f"No {asset.name}'s in {self.name}'s inventory.")
         else:
-            print(f"{asset.name} removed from {self.name}'s inventory.")
             self.__inventory.remove(self.__inventory[self.find_asset_index(asset)])
 
     def search_assets(self, asset):
@@ -131,7 +127,7 @@ class Hacker:
 
             print("Starting rig extraction.")
 
-            to_object.set_display_add_print(False)
+
             loop_storage = from_object.get_asset().copy()
             unsecure_count = 0
             secure_count = 0
@@ -146,7 +142,7 @@ class Hacker:
             print(f"{unsecure_count} unsecured assets transferred from {from_object} to {to_object}."
                   f"\n{secure_count} secure assets not transferred.")
 
-            to_object.set_display_add_print(True)
+
 
             print("Completed rig extraction.")
 
@@ -171,21 +167,11 @@ class Hacker:
 
         if isinstance(from_object, Hacker) and isinstance(to_object, Rig):
             if not to_object.broken:
-                print(to_object.owner)
-                print(from_object.name)
                 if to_object.owner !=  from_object:
                     print("Cannot transfer between opposing hackers "
                           "unbroken rigs.")
                     return False
 
-        #
-        # if isinstance(from_object, Hacker) and isinstance(to_object, Rig):
-        #     if not to_object.get_equipped_status():
-        #
-        #
-
-            # my point is player cant transfer asset from an enemys working rig
-            # if the from is a rig and the rigs owner = the to,
 
         return True
 
@@ -199,20 +185,20 @@ class Hacker:
 
         if isinstance(from_object, Rig) and isinstance(to_object, Rig):
             to_object.add_asset(transfer_asset)
+            from_object.remove_asset(asset)
             print(f"{asset.name} transferred from {from_object.owner}"
                   f"'s rig to {to_object.owner}'s rig.")
         elif isinstance(to_object, Rig):
             to_object.add_asset(transfer_asset)
-            print(f"{asset.name} transferred from {from_object.name}"
-                  f" to {to_object.owner}'s rig.")
+            from_object.remove_asset(asset)
+            print(f"{asset.name} transferred from {from_object.name}'s"
+                  f" inventory to {to_object.owner}'s rig.")
         elif isinstance(from_object, Rig):
             to_object.add_asset(transfer_asset)
+            from_object.remove_asset(asset)
             print(f"{asset.name} transferred from {from_object.owner}"
                   f"'s rig to {to_object.name}.")
 
-        elif isinstance(from_object, Hacker) and isinstance(to_object, Hacker):
-            print(f"{asset.name} transferred from {from_object.name}"
-                  f" to {to_object.name}.")
 
         else:
             print("Invalid destination for item.")
@@ -225,10 +211,16 @@ class Hacker:
         return spent_asset
 
 
+    def multi_asset_transfer(self, from_object, to_object):
+        if not from_object.get_asset().copy():
+            print(f"{from_object}'s {from_object.get_container_term()} contains no assets.")
+        else:
+            for i in from_object.get_asset().copy():
+                from_object.asset_transfer(from_object, to_object, i)
+
 
     # --- Encryption, decryption and trace methods ---
     def trace_check(self, target):
-
 
         if isinstance(target, Rig):
             if target.owner is self:
