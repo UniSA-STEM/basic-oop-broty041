@@ -17,8 +17,8 @@ asset_dict = {
     "Hardware Patch": "Used to upgrade rigs."
 }
 
-def get_asset(name):
 
+def get_asset(name):
     assets = asset_dict
     return Asset(name, assets[name])
 
@@ -28,18 +28,16 @@ def fill_inv_stor(char_rig):
     char_rig.set_display_add_print(False)
     print(f"{char_rig} filled with items.")
     char_rig.add_asset(get_asset("CryptoToken"))
+    char_rig.add_asset(get_asset("Data Spike"))
+    char_rig.add_asset(get_asset("Removable Drive"))
+    char_rig.add_asset(get_asset("Security Chip"))
+    char_rig.add_asset(get_asset("Hardware Patch"))
     char_rig.add_asset(get_asset("CryptoToken"))
     char_rig.add_asset(get_asset("Data Spike"))
-    char_rig.add_asset(get_asset("Data Spike"))
-    char_rig.add_asset(get_asset("Removable Drive"))
     char_rig.add_asset(get_asset("Removable Drive"))
     char_rig.add_asset(get_asset("Security Chip"))
-    char_rig.add_asset(get_asset("Security Chip"))
-    char_rig.add_asset(get_asset("Hardware Patch"))
     char_rig.add_asset(get_asset("Hardware Patch"))
     char_rig.set_display_add_print(True)
-
-
 
 
 def starting_procedure_test():
@@ -59,7 +57,6 @@ def battle_test():
 
     fill_inv_stor(hk1.get_rig())
     fill_inv_stor(hk2.get_rig())
-
 
     hk1.deal_damage(hk2)
     hk1.get_rig().remove_asset(get_asset("Data Spike"))
@@ -83,13 +80,11 @@ def battle_test():
     hk1.deal_damage(hk2)
     print(hk2.rig_condition())
 
-
     # hk1.get_rig().add_asset(get_asset("Data Spike"))
     # hk1.get_rig().list_assets()
     # hk1.deal_damage(hk2)
     # hk1.deal_damage(hk2)
     print(f"--- Concluded battle testing ---\n")
-
 
 
 def single_asset_transfer():
@@ -98,6 +93,7 @@ def single_asset_transfer():
     hk1.asset_transfer(hk2.get_rig(), hk1, get_asset("CryptoToken"))
     hk2.get_rig().list_assets()
     hk1.list_assets()
+
 
 def extract_rig_storage_test():
     print(f"--- Executing rig storage extraction testing ---")
@@ -112,6 +108,7 @@ def extract_rig_storage_test():
     # hk2.get_rig().list_assets()
     print(f"--- Concluded rig storage extraction testing ---\n")
 
+
 def consume_item_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Removable Drive"))
@@ -119,30 +116,33 @@ def consume_item_test():
     hk1.consume_asset(get_asset("Removable Drive"))
     hk1.list_assets()
 
+
 def change_encryption_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Security Chip"))
     hk1.add_asset(get_asset("Security Chip"))
-    hk1.add_asset(get_asset("Security Chip"))
+    hk1.get_rig().add_asset(get_asset("Security Chip"))
     hk2.add_asset(get_asset("Security Chip"))
-    hk2.add_asset(get_asset("Security Chip"))
-    hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
-    # hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
-    # #
-    # hk2.list_assets()
-    # #
-    # hk1.change_encryption(hk2, get_asset("Security Chip"), "decrypt")
-    # #
-    # hk2.list_assets()
-    hk1.get_rig().add_asset(get_asset("Data Spike"))
-    hk1.deal_damage(hk2)
-    hk1.add_asset(get_asset("CryptoToken"))
-    hk1.add_asset(get_asset("CryptoToken"))
-    hk1.add_asset(get_asset("CryptoToken"))
-    hk1.add_asset(get_asset("CryptoToken"))
-    hk1.add_asset(get_asset("CryptoToken"))
-    hk1.add_asset(get_asset("CryptoToken"))
-    hk1.add_asset(get_asset("CryptoToken"))
+    hk2.get_rig().add_asset(get_asset("Security Chip"))
+    # hk2.add_asset(get_asset("Security Chip"))
+    # hk2.add_asset(get_asset("Security Chip"))
+    hk1.change_encryption(hk1.get_rig(), get_asset("Security Chip"), "decrypt")
+    # # hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
+    # # #
+    # # hk2.list_assets()
+    # # #
+    # # hk1.change_encryption(hk2, get_asset("Security Chip"), "decrypt")
+    # # #
+    # # hk2.list_assets()
+    # hk1.get_rig().add_asset(get_asset("Data Spike"))
+    # hk1.deal_damage(hk2)
+    # hk1.add_asset(get_asset("CryptoToken"))
+    # hk1.add_asset(get_asset("CryptoToken"))
+    # hk1.add_asset(get_asset("CryptoToken"))
+    # hk1.add_asset(get_asset("CryptoToken"))
+    # hk1.add_asset(get_asset("CryptoToken"))
+    # hk1.add_asset(get_asset("CryptoToken"))
+    # hk1.add_asset(get_asset("CryptoToken"))
 
     # hk1.chop_shop()
     #
@@ -154,9 +154,6 @@ def change_encryption_test():
     # hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
     #
     # hk1.get_rig().list_assets()
-
-
-
 
 
 def upgrade_rig_level_test():
@@ -186,6 +183,27 @@ def chop_shop_test():
     hk1.chop_shop()
     hk1.chop_shop()
 
+
+def asset_transfer_test():
+    hk1, hk2 = starting_procedure_test()
+    hk1.add_asset(get_asset("Hardware Patch"))
+    hk2.get_rig().add_asset(get_asset("Hardware Patch"))
+    hk1.get_rig().add_asset(get_asset("Hardware Patch"))
+    hk2.add_asset(get_asset("Hardware Patch"))
+
+    hk1.asset_transfer(hk1, hk1.get_rig(), get_asset("Hardware Patch"))
+
+
+    # Does from_object asset exist?
+
+    # If its a rig, is it full?
+
+    # What if the class was different?
+
+
+
+
+
 # --- Main Testing Sequence ---
 # starting_procedure_test()
 # battle_test()
@@ -195,4 +213,4 @@ def chop_shop_test():
 change_encryption_test()
 # upgrade_rig_level_test()
 # chop_shop_test()
-
+# asset_transfer_test()

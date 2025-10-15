@@ -27,11 +27,11 @@ class Rig:
         if not self.__storage:
             print(f"{self.owner}'s rig storage is empty.")
         else:
-            print(f"Contents of {self.name}'s storage:")
+            print(f"{self.name} contains {len(self.get_asset())} items::")
             for i in self.__storage:
                 print(i)
 
-    def get_storage(self):
+    def get_asset(self):
         return self.__storage
 
     def get_damage(self):
@@ -67,18 +67,28 @@ class Rig:
     def set_storage_size(self, level):
         self.__storage_size += level
 
+    def get_container_term(self):
+        return "rig's storage"
+
     # --- Property Attributes ---
     damage = property(get_damage, set_damage)
     max_damage = property(get_max_damage, set_max_damage)
     broken = property(get_broken, set_broken)
     upgrade = property(get_upgrade_level, set_upgrade_level)
-    storage = property(get_storage_size, set_storage_size)
+    storage_size = property(get_storage_size, set_storage_size)
 
     # --- Storage Related Methods ---
     def add_asset(self, asset):
+        if len(self.get_asset()) >= self.get_storage_size():
+            if self.__display_add_print:
+                print("Storage is full.")
+            return False
+
+        self.__storage.append(asset)
+
         if self.__display_add_print:
             print(f"{asset.name} added to {self.owner}'s rig storage.")
-        self.__storage.append(asset)
+        return True
 
     def remove_asset(self, asset):
         if self.find_asset_index(asset) is None:
@@ -106,6 +116,23 @@ class Rig:
             if asset == i:
                 return idx
         return None
+
+    def find_unencrypted(self, target, asset):
+        for i in target.get_asset():
+            if i.name == asset.name:
+                if not i.encrypt:
+                    return i
+        return None
+
+    def find_encrypted(self, target, asset):
+        for i in target.get_asset():
+            if i.name == asset.name:
+                if i.encrypt:
+                    return i
+        return None
+
+
+
 
     def __str__(self):
         return self.name

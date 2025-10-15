@@ -29,7 +29,7 @@ class Hacker:
         if not self.__inventory:
             print(f"{self.name}'s inventory is empty.")
         else:
-            print(f"Contents of {self.name}'s inventory:")
+            print(f"{self.name} contains {len(self.get_asset())} items::")
             for i in self.__inventory:
                 print(i)
 
@@ -63,6 +63,12 @@ class Hacker:
     def set_encryption_flag(self, state):
         self.__encryption_flag = state
 
+    def get_equipped_status(self):
+        return self.__equipped_rig
+
+    def get_container_term(self):
+        return "inventory"
+
 
     # --- Property Attributes ---
     trace = property(get_trace, set_trace)
@@ -74,15 +80,13 @@ class Hacker:
         return self.__inventory
 
     def add_asset(self, asset):
-        if self.__display_add_print:
-            print(f"Added {asset.name} to {self.name}'s inventory.")
         self.__inventory.append(asset)
 
     def remove_asset(self, asset):
         if self.find_asset_index(asset) is None:
             print(f"No {asset.name}'s in {self.name}'s inventory.")
         else:
-            print(f"{asset.name} removed from {self.owner}'s inventory.")
+            print(f"{asset.name} removed from {self.name}'s inventory.")
             self.__inventory.remove(self.__inventory[self.find_asset_index(asset)])
 
     def search_assets(self, asset):
@@ -105,7 +109,7 @@ class Hacker:
         return None
 
     def extract_rig_check(self, from_object, to_object):
-        storage_copy = from_object.get_storage().copy()
+        storage_copy = from_object.get_asset().copy()
         if from_object.broken is False:
             print(f"{from_object.owner}'s rig must be broken before extracting assets.")
             return False
@@ -128,7 +132,7 @@ class Hacker:
             print("Starting rig extraction.")
 
             to_object.set_display_add_print(False)
-            loop_storage = from_object.get_storage().copy()
+            loop_storage = from_object.get_asset().copy()
             unsecure_count = 0
             secure_count = 0
 
@@ -146,22 +150,76 @@ class Hacker:
 
             print("Completed rig extraction.")
 
-    def asset_transfer(self, from_object, to_object, asset):
-
-        idx = from_object.find_asset_index(asset)
-        transfer_asset = from_object.get_storage()[idx]
-
+    def asset_transfer_check(self, from_object, to_object, asset):
         if isinstance(to_object, Rig):
+            if len(to_object.get_asset()) >= to_object.get_storage_size():
+
+                print(f"{to_object.name}'s storage is full."
+                      f" Unable to transfer asset.")
+                return False
+
+        if not from_object.search_assets(asset):
+            print(f"{asset.name} not found on {from_object.name}")
+            return False
+
+        if isinstance(from_object, Rig) and isinstance(to_object, Hacker):
+            if not from_object.broken:
+                if from_object.owner !=  to_object:
+                    print("Cannot transfer between opposing hackers "
+                          "unbroken rigs.")
+                    return False
+
+        if isinstance(from_object, Hacker) and isinstance(to_object, Rig):
+            if not to_object.broken:
+                print(to_object.owner)
+                print(from_object.name)
+                if to_object.owner !=  from_object:
+                    print("Cannot transfer between opposing hackers "
+                          "unbroken rigs.")
+                    return False
+
+        #
+        # if isinstance(from_object, Hacker) and isinstance(to_object, Rig):
+        #     if not to_object.get_equipped_status():
+        #
+        #
+
+            # my point is player cant transfer asset from an enemys working rig
+            # if the from is a rig and the rigs owner = the to,
+
+        return True
+
+
+    def asset_transfer(self, from_object, to_object, asset):
+        if not self.asset_transfer_check(from_object, to_object, asset):
+            return
+        idx = from_object.find_asset_index(asset)
+        transfer_asset = from_object.get_asset()[idx]
+
+
+        if isinstance(from_object, Rig) and isinstance(to_object, Rig):
             to_object.add_asset(transfer_asset)
-        elif isinstance(to_object, Hacker):
+            print(f"{asset.name} transferred from {from_object.owner}"
+                  f"'s rig to {to_object.owner}'s rig.")
+        elif isinstance(to_object, Rig):
             to_object.add_asset(transfer_asset)
+            print(f"{asset.name} transferred from {from_object.name}"
+                  f" to {to_object.owner}'s rig.")
+        elif isinstance(from_object, Rig):
+            to_object.add_asset(transfer_asset)
+            print(f"{asset.name} transferred from {from_object.owner}"
+                  f"'s rig to {to_object.name}.")
+
+        elif isinstance(from_object, Hacker) and isinstance(to_object, Hacker):
+            print(f"{asset.name} transferred from {from_object.name}"
+                  f" to {to_object.name}.")
+
         else:
-            print("Invalid to_object.")
+            print("Invalid destination for item.")
 
     def consume_asset(self, asset):
         idx = self.find_asset_index(asset)
         if idx is None:
-            print(f"No {asset.name}s in inventory.")
             return None
         spent_asset = self.__inventory.remove(self.__inventory[idx])
         return spent_asset
@@ -171,6 +229,10 @@ class Hacker:
     # --- Encryption, decryption and trace methods ---
     def trace_check(self, target):
 
+
+        if isinstance(target, Rig):
+            if target.owner is self:
+                return True
 
         if target.name is self.name:
             return True
@@ -191,6 +253,18 @@ class Hacker:
     def verify_encryption(self, target, asset, mode):
         sec_chip = Asset("Security Chip", "Used to encrypt or decrypt assets.")
 
+        if isinstance(target, Rig):
+            if target.owner !=  self:
+                print("Cannot encrypt or decrypt assets in a "
+                      "hacker's rig.")
+                return False
+
+        if isinstance(target, Hacker):
+            if target !=  self:
+                print("Cannot encrypt or decrypt assets in a "
+                      "hacker's inventory.")
+                return False
+
         if mode == "encrypt" and not self.set_encryption_flag:
             self.change_attack_state(1)
             return False
@@ -203,6 +277,8 @@ class Hacker:
             print(f"Can't find a {asset.name}.")
             return False
 
+
+
         if mode == "encrypt":
             asset_found = target.find_unencrypted(target, asset)
             if asset_found is None:
@@ -212,7 +288,7 @@ class Hacker:
         elif mode == "decrypt":
             asset_found = target.find_encrypted(target, asset)
             if asset_found is None:
-                print(f"{asset.name} is not encrypted.")
+                print(f"The {asset.name} in {self.name}'s {target.get_container_term()} is not encrypted.")
                 return False
 
         else:
@@ -252,10 +328,14 @@ class Hacker:
 
         if mode == "encrypt":
             found_unencrypted.encrypt = True
-            print(f"{self.name} used a {asset.name} to perform encryption.")
+            print(f"{self.name} used a {sec_chip.name} to encrypt "
+                  f"a {asset.name} in "
+                  f"their {target.get_container_term()}.")
         elif mode == "decrypt":
             found_encrypted.encrypt = False
-            print(f"{self.name} used a {asset.name} to perform decryption.")
+            print(f"{self.name} used a {sec_chip.name} to decrypt "
+                  f"a {asset.name} in "
+                  f"their {target.get_container_term()}.")
 
 
 
@@ -374,7 +454,8 @@ class Hacker:
         if self.pre_attack_check(enemy):
             self.get_rig().consume_asset(d_spike)
             enemy.get_rig().damage = 1
-            print(f"{self.name} attacked {enemy.name}"
+            print(f"{self.name} launched {d_spike.name}"
+                  f"\n{enemy.name} took 1 damage."
                   f"\n{enemy.name} rig: {enemy.get_rig().damage}/{enemy.get_rig().max_damage} Damage")
 
         if enemy.get_rig().damage >= enemy.get_rig().max_damage:
