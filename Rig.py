@@ -75,35 +75,35 @@ class Rig:
     storage = property(get_storage_size, set_storage_size)
 
     # --- Storage Related Methods ---
-    def add_asset(self, item):
+    def add_asset(self, asset):
         if self.__display_add_print:
-            print(f"{item.name} added to {self.owner}'s rig storage.")
-        self.__storage.append(item)
+            print(f"{asset.name} added to {self.owner}'s rig storage.")
+        self.__storage.append(asset)
 
-    def remove_asset(self, item):
-        if self.find_asset_index(item) is None:
-            print(f"No {item.name}'s in inventory.")
+    def remove_asset(self, asset):
+        if self.find_asset_index(asset) is None:
+            print(f"No {asset.name}'s in inventory.")
         else:
-            print(f"{item.name} removed from {self.owner}'s rig storage.")
-            self.__storage.remove(self.__storage[self.find_asset_index(item)])
+            print(f"{asset.name} removed from {self.owner}'s rig storage.")
+            self.__storage.remove(self.__storage[self.find_asset_index(asset)])
 
-    def consume_item(self, item):
-        idx = self.find_asset_index(item)
+    def consume_asset(self, asset):
+        idx = self.find_asset_index(asset)
         if idx is None:
-            print(f"No {item}s in storage.")
+            print(f"No {asset}s in storage.")
             return None
-        spent_item = self.__storage.remove(self.__storage[idx])
-        return spent_item
+        spent_asset = self.__storage.remove(self.__storage[idx])
+        return spent_asset
 
-    def search_assets(self, item):
+    def search_assets(self, asset):
         for idx, i in enumerate(self.__storage):
-            if item == i:
+            if asset == i:
                 return i
         return None
 
-    def find_asset_index(self, item):
+    def find_asset_index(self, asset):
         for idx, i in enumerate(self.__storage):
-            if item == i:
+            if asset == i:
                 return idx
         return None
 

@@ -116,36 +116,29 @@ def consume_item_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Removable Drive"))
     hk1.list_inventory()
-    hk1.consume_item(get_asset("Removable Drive"))
+    hk1.consume_asset(get_asset("Removable Drive"))
     hk1.list_inventory()
 
-def encrypt_asset_test():
+def change_encryption_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Security Chip"))
     hk1.add_asset(get_asset("Security Chip"))
     hk1.add_asset(get_asset("Security Chip"))
-    hk1.add_asset(get_asset("Security Chip"))
-    hk1.add_asset(get_asset("Security Chip"))
-    hk1.add_asset(get_asset("Security Chip"))
-    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
     hk2.add_asset(get_asset("Security Chip"))
-    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
-    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
     hk2.add_asset(get_asset("Security Chip"))
-    print(hk1.get_trace())
-    hk1.encrypt_asset(hk2, get_asset("Security Chip"))
-    print(hk1.get_trace())
-    #hk1.encrypt_asset(hk2, get_asset("Security Chip"))
-    #hk2.list_inventory()
-
-    #hk2.add_asset(get_asset("Security Chip"))
-    #hk2.get_rig().add_asset(get_asset("Security Chip"))
-    #hk1.encrypt_asset(hk2.get_rig(), get_asset("Security Chip"))
-    # hk1.encrypt_asset(hk2.get_rig(), get_asset("Security Chip"))
-    #hk1.encrypt_asset(hk1, get_asset("Security Chip"))
-    # hk2.get_rig().list_storage()
+    hk1.edit_trace(5)
+    hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
+    hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
+    #
+    hk2.list_inventory()
+    #
+    hk1.change_encryption(hk2, get_asset("Security Chip"), "decrypt")
+    #
+    hk2.list_inventory()
+    hk1.add_asset(get_asset("Data Spike"))
+    hk1.deal_damage(hk2)
     # hk1.list_inventory()
-    # hk2.get_rig().add_asset(get_asset("Security Chip"))
+
 
 
 
@@ -162,15 +155,28 @@ def upgrade_rig_level_test():
     hk1.upgrade_rig()
 
 
+def chop_shop_test():
+    hk1, hk2 = starting_procedure_test()
 
+    # Inventory and storage fill
+    fill_inv_stor(hk1)
+    fill_inv_stor(hk1)
+    fill_inv_stor(hk2)
+    fill_inv_stor(hk1.get_rig())
+    fill_inv_stor(hk2.get_rig())
 
+    hk1.chop_shop()
+    hk1.edit_trace(5)
+    hk1.chop_shop()
+    hk1.chop_shop()
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
-#battle_test()
+# battle_test()
 # single_asset_transfer()
 # extract_rig_storage_test()
 # consume_item_test()
-encrypt_asset_test()
-#upgrade_rig_level_test()
+change_encryption_test()
+# upgrade_rig_level_test()
+# chop_shop_test()
 

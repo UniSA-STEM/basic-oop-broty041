@@ -35,5 +35,5 @@ class Asset:
         if not self.__encryption:
             return f"{self.name}: {self.description}"
         else:
-            return f"{self.name}: {self.description}[Encrypted]"
+            return f"{self.name}: {self.description} [Encrypted]"
 
