@@ -85,7 +85,7 @@ def battle_test():
 
 
     # hk1.get_rig().add_asset(get_asset("Data Spike"))
-    # hk1.get_rig().list_storage()
+    # hk1.get_rig().list_assets()
     # hk1.deal_damage(hk2)
     # hk1.deal_damage(hk2)
     print(f"--- Concluded battle testing ---\n")
@@ -96,8 +96,8 @@ def single_asset_transfer():
     hk1, hk2 = starting_procedure_test()
     hk2.get_rig().add_asset(get_asset("CryptoToken"))
     hk1.asset_transfer(hk2.get_rig(), hk1, get_asset("CryptoToken"))
-    hk2.get_rig().list_storage()
-    hk1.list_inventory()
+    hk2.get_rig().list_assets()
+    hk1.list_assets()
 
 def extract_rig_storage_test():
     print(f"--- Executing rig storage extraction testing ---")
@@ -109,15 +109,15 @@ def extract_rig_storage_test():
     hk1.add_asset(get_asset("Removable Drive"))
     hk1.extract_rigs_storage(hk2.get_rig(), hk1)
 
-    # hk2.get_rig().list_storage()
+    # hk2.get_rig().list_assets()
     print(f"--- Concluded rig storage extraction testing ---\n")
 
 def consume_item_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Removable Drive"))
-    hk1.list_inventory()
+    hk1.list_assets()
     hk1.consume_asset(get_asset("Removable Drive"))
-    hk1.list_inventory()
+    hk1.list_assets()
 
 def change_encryption_test():
     hk1, hk2 = starting_procedure_test()
@@ -126,18 +126,34 @@ def change_encryption_test():
     hk1.add_asset(get_asset("Security Chip"))
     hk2.add_asset(get_asset("Security Chip"))
     hk2.add_asset(get_asset("Security Chip"))
-    hk1.edit_trace(5)
     hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
-    hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
-    #
-    hk2.list_inventory()
-    #
-    hk1.change_encryption(hk2, get_asset("Security Chip"), "decrypt")
-    #
-    hk2.list_inventory()
-    hk1.add_asset(get_asset("Data Spike"))
+    # hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
+    # #
+    # hk2.list_assets()
+    # #
+    # hk1.change_encryption(hk2, get_asset("Security Chip"), "decrypt")
+    # #
+    # hk2.list_assets()
+    hk1.get_rig().add_asset(get_asset("Data Spike"))
     hk1.deal_damage(hk2)
-    # hk1.list_inventory()
+    hk1.add_asset(get_asset("CryptoToken"))
+    hk1.add_asset(get_asset("CryptoToken"))
+    hk1.add_asset(get_asset("CryptoToken"))
+    hk1.add_asset(get_asset("CryptoToken"))
+    hk1.add_asset(get_asset("CryptoToken"))
+    hk1.add_asset(get_asset("CryptoToken"))
+    hk1.add_asset(get_asset("CryptoToken"))
+
+    # hk1.chop_shop()
+    #
+    # hk1.deal_damage(hk2)
+    # hk1.deal_damage(hk2)
+    # hk1.chop_shop()
+    # hk1.get_rig().list_assets()
+    #
+    # hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
+    #
+    # hk1.get_rig().list_assets()
 
 
 

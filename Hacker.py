@@ -20,10 +20,12 @@ class Hacker:
         self.__equipped_rig = None
         self.__trace_level = 0
         self.__display_add_print = True
-        self.__attack_state = 1
+        self.__attack_state = 0
+        # Encryption flag True means hacker can encrypt.
+        self.__encryption_flag = True
 
     # --- Getters and Setters ---
-    def list_inventory(self):
+    def list_assets(self):
         if not self.__inventory:
             print(f"{self.name}'s inventory is empty.")
         else:
@@ -49,16 +51,23 @@ class Hacker:
     def remove_rig(self):
         self.__equipped_rig = None
 
-    def get_can_attack(self):
+    def get_attack_state(self):
         return self.__attack_state
 
-    def set_can_attack(self, state):
+    def set_attack_state(self, state):
         self.__attack_state = state
+
+    def get_encryption_flag(self):
+        return self.__encryption_flag
+
+    def set_encryption_flag(self, state):
+        self.__encryption_flag = state
 
 
     # --- Property Attributes ---
     trace = property(get_trace, set_trace)
-    can_attack = property(get_can_attack, set_can_attack)
+    attack_state = property(get_attack_state, set_attack_state)
+    encryption_flag = property(get_encryption_flag, set_encryption_flag)
 
     # --- Storage Related Methods ---
     def get_asset(self):
@@ -152,7 +161,7 @@ class Hacker:
     def consume_asset(self, asset):
         idx = self.find_asset_index(asset)
         if idx is None:
-            print(f"No {asset}s in storage.")
+            print(f"No {asset.name}s in inventory.")
             return None
         spent_asset = self.__inventory.remove(self.__inventory[idx])
         return spent_asset
@@ -171,14 +180,20 @@ class Hacker:
             return False
 
         self.trace = 1
-        print(f"ALERT! RISKY ACTION DETECTED!"
-              f"\nTRACE LEVEL NOW: {self.trace}")
+        print(f"ALERT! RISKY ACTION DETECTED!")
+        if self.trace < 5:
+              print(f"Trace level now: {self.trace}")
         if self.trace == 5:
             self.change_attack_state(1)
+            self.encryption_flag = False
         return True
 
     def verify_encryption(self, target, asset, mode):
         sec_chip = Asset("Security Chip", "Used to encrypt or decrypt assets.")
+
+        if mode == "encrypt" and not self.set_encryption_flag:
+            self.change_attack_state(1)
+            return False
 
         if self.find_asset_index(sec_chip) is None:
             print(f"No Security Chip in inventory, cannot {mode} {asset.name}.")
@@ -225,6 +240,8 @@ class Hacker:
         found_unencrypted = target.find_unencrypted(target, asset)
         found_encrypted = target.find_encrypted(target, asset)
 
+
+
         if not self.verify_encryption(target, asset, mode):
             return
 
@@ -239,7 +256,6 @@ class Hacker:
         elif mode == "decrypt":
             found_encrypted.encrypt = False
             print(f"{self.name} used a {asset.name} to perform decryption.")
-
 
 
 
@@ -292,18 +308,21 @@ class Hacker:
 
             if self.trace == 5:
                 print("You're really testing my patience coming in"
-                      " here with that much notoriety.")
+                      " here with that much exposure.")
             if give_tokens in ["Y", "y"]:
                 self.consume_asset(cryp_tok)
                 self.consume_asset(cryp_tok)
                 self.trace = -1
+                self.attack_state = 0
+                self.encryption_flag = False
                 print(f"{self.name} gives shadowy figure 2 "
                       f"{cryp_tok.name}s")
                 print("'A fine trade.' The shadowy figure taps on"
                       " his keyboard, a moment later your HUD shows your "
-                      f"trace level is now {self.trace} and "
-                      f"notoriety is gone\n. You say thanks and "
-                      f" leave the chop shop.")
+                      f"trace level is now {self.trace}."
+                      f"\n.You say thanks and leave the chop shop.")
+                if self.trace == 4:
+                    print("No longer exposed.")
                 return False
             elif give_tokens in ["N", "n"]:
                 print("You come in here for no reason?! Be gone!"
@@ -320,20 +339,22 @@ class Hacker:
 
     def change_attack_state(self, state):
         if state == 1:
-            self.can_attack = 1
-            print(f"NOTORIOUS! Trace level: {self.trace}"
+            self.attack_state = 1
+            print(f"EXPOSED! Trace level: {self.trace}"
                   f"\nAttacks and encrypting are disabled until trace "
                   f"level is decreased.")
 
         elif state == 2:
-            self.can_attack = 2
+            self.attack_state = 2
             print("A rig needs to be equipped in order to attack.")
 
     def pre_attack_check(self, enemy):
         d_spike = Asset("Data Spike", "Used in battles.")
 
-        if self.can_attack is False:
-            print("You")
+        if self.get_attack_state() > 0:
+            print("Cannot attack.")
+            self.change_attack_state(1)
+            return False
 
         if enemy.get_rig().broken is True:
             print(f"Unable to attack a broken rig.")
@@ -343,13 +364,15 @@ class Hacker:
             print("No Data Spike in storage, cannot deal damage.")
             return False
 
+        self.trace_check(enemy)
+
         return True
 
     def deal_damage(self, enemy):
         d_spike = Asset("Data Spike", "Used in battles.")
 
         if self.pre_attack_check(enemy):
-            self.consume_asset(d_spike)
+            self.get_rig().consume_asset(d_spike)
             enemy.get_rig().damage = 1
             print(f"{self.name} attacked {enemy.name}"
                   f"\n{enemy.name} rig: {enemy.get_rig().damage}/{enemy.get_rig().max_damage} Damage")

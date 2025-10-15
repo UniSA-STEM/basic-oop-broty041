@@ -23,7 +23,7 @@ class Rig:
         self.__storage_size = 5
 
     # --- Getters and Setters ---
-    def list_storage(self):
+    def list_assets(self):
         if not self.__storage:
             print(f"{self.owner}'s rig storage is empty.")
         else:
@@ -90,7 +90,7 @@ class Rig:
     def consume_asset(self, asset):
         idx = self.find_asset_index(asset)
         if idx is None:
-            print(f"No {asset}s in storage.")
+            print(f"No {asset.name} in storage.")
             return None
         spent_asset = self.__storage.remove(self.__storage[idx])
         return spent_asset
