@@ -10,7 +10,7 @@ This is my own work as defined by the University's Academic Misconduct Policy.
 
 
 class Asset:
-    class_type = "asset"
+
     def __init__(self, name, description):
         self.name = name
         self.description = description

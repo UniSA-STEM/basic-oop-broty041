@@ -11,9 +11,9 @@ import random
 
 
 class Rig:
-    class_type = "rig"
+    """asdf """
 
-    def __init__(self, name, owner):
+    def __init__(self, name: str, owner):
         self.name = name
         self.owner = owner
         self.__storage = [Asset("Data Spike",

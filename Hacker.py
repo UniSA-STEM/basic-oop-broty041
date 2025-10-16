@@ -12,7 +12,7 @@ from Rig import Rig
 
 
 class Hacker:
-    class_type = "hacker"
+
 
     def __init__(self, name):
         self.name = name
