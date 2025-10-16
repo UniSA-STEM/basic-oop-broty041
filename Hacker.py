@@ -29,7 +29,7 @@ class Hacker:
             print(f"{self.name}'s inventory is empty.")
         else:
             print(f"{self.name}'s inventory contains "
-                  f"{len(self.get_asset())} items::")
+                  f"{len(self.get_asset())} items:")
             for i in self.__inventory:
                 print(i)
 
@@ -88,16 +88,17 @@ class Hacker:
         else:
             self.__inventory.remove(self.__inventory[self.find_asset_index(asset)])
 
-    def search_assets(self, asset):
+    def find_asset(self, asset: "Takes asset as object or string"):
+        find_ref = asset.name if isinstance(asset, Asset) else asset
         for i in self.__inventory:
-            if asset == i:
+            if i.name == find_ref:
                 return i
         return None
 
     def count_asset(self, asset):
         count = 0
         for i in self.get_asset():
-            if asset == i:
+            if asset == i.name:
                 count += 1
         return count
 
@@ -117,49 +118,50 @@ class Hacker:
         return None
 
 
-    def extract_rig_check(self, from_object, to_object):
-        storage_copy = from_object.get_asset().copy()
-        if from_object.broken is False:
-            print(f"{from_object.owner}'s rig must be broken before extracting assets.")
-            return False
-
-        if len(storage_copy) == 0:
-            print(f"{from_object.name}'s storage is empty. Nothing to extract.")
-            return False
-
-        if to_object.find_asset_index(Asset("Removable Drive", "Found in rigs and used for extraction.")) is None:
-            print("No Removable Drive in rig storage.\n"
-                  "A Removable Drive is required to extract another broken rig's assets.")
-            return False
-
-        return True
-
-    def extract_rigs_storage(self, from_object, to_object):
-
-        if self.extract_rig_check(from_object, to_object):
-
-            print("Starting rig extraction.")
-
-
-            loop_storage = from_object.get_asset().copy()
-            unsecure_count = 0
-            secure_count = 0
-
-            for i in loop_storage:
-                if i.get_encryption() is False:
-                    self.asset_transfer(from_object, to_object, i)
-                    unsecure_count += 1
-                else:
-                    secure_count += 1
-
-            print(f"{unsecure_count} unsecured assets transferred from {from_object} to {to_object}."
-                  f"\n{secure_count} secure assets not transferred.")
-
-
-
-            print("Completed rig extraction.")
+    # def extract_rig_check(self, from_object, to_object):
+    #     storage_copy = from_object.get_asset().copy()
+    #     if from_object.broken is False:
+    #         print(f"{from_object.owner}'s rig must be broken before extracting assets.")
+    #         return False
+    #
+    #     if len(storage_copy) == 0:
+    #         print(f"{from_object.name}'s storage is empty. Nothing to extract.")
+    #         return False
+    #
+    #     if to_object.find_asset_index(Asset("Removable Drive", "Found in rigs and used for extraction.")) is None:
+    #         print("No Removable Drive in rig storage.\n"
+    #               "A Removable Drive is required to extract another broken rig's assets.")
+    #         return False
+    #
+    #     return True
+    #
+    # def extract_rigs_storage(self, from_object, to_object):
+    #
+    #     if self.extract_rig_check(from_object, to_object):
+    #
+    #         print("Starting rig extraction.")
+    #
+    #
+    #         loop_storage = from_object.get_asset().copy()
+    #         unsecure_count = 0
+    #         secure_count = 0
+    #
+    #         for i in loop_storage:
+    #             if i.get_encryption() is False:
+    #                 self.asset_transfer(from_object, to_object, i)
+    #                 unsecure_count += 1
+    #             else:
+    #                 secure_count += 1
+    #
+    #         print(f"{unsecure_count} unsecured assets transferred from {from_object} to {to_object}."
+    #               f"\n{secure_count} secure assets not transferred.")
+    #
+    #
+    #
+    #         print("Completed rig extraction.")
 
     def asset_transfer_check(self, from_object, to_object, asset):
+
         if isinstance(to_object, Rig):
             if len(to_object.get_asset()) >= to_object.get_storage_size():
 
@@ -167,22 +169,25 @@ class Hacker:
                       f" Unable to transfer asset.")
                 return False
 
-        if not from_object.search_assets(asset):
+        if not from_object.find_asset(asset):
             print(f"{asset.name} not found on {from_object.name}")
             return False
 
         if isinstance(from_object, Rig) and isinstance(to_object, Hacker):
-            if not from_object.broken:
-                if from_object.owner !=  to_object:
-                    print("Cannot transfer between opposing hackers "
-                          "unbroken rigs.")
-                    return False
+            if from_object.find_asset(asset):
+                if not from_object.broken:
+                    if from_object.owner !=  to_object:
+                        print("To transfer assets from an opponents rig, "
+                              "it must be broken and your rig must hold "
+                              "a 'Removable Drive'.")
+                        return False
 
         if isinstance(from_object, Hacker) and isinstance(to_object, Rig):
             if not to_object.broken:
                 if to_object.owner !=  from_object:
-                    print("Cannot transfer between opposing hackers "
-                          "unbroken rigs.")
+                    print("To transfer assets from an opponents rig, "
+                          "it must be broken and your rig must hold "
+                          "a 'Removable Drive'.")
                     return False
 
 
@@ -214,13 +219,10 @@ class Hacker:
 
 
         else:
-            print("Invalid destination for item.")
+            print("Invalid destination for asset.")
 
     def consume_asset(self, asset):
-        idx = self.find_asset_index(asset)
-        if idx is None:
-            return None
-        spent_asset = self.__inventory.remove(self.__inventory[idx])
+        spent_asset = self.__inventory.remove(self.find_asset(asset))
         return spent_asset
 
 
@@ -256,8 +258,6 @@ class Hacker:
         return True
 
     def verify_encryption(self, target, asset, mode):
-        sec_chip = Asset("Security Chip", "Used to encrypt or decrypt assets.")
-
         if isinstance(target, Rig):
             if target.owner !=  self:
                 print("Cannot encrypt or decrypt assets in a "
@@ -274,7 +274,7 @@ class Hacker:
             self.change_attack_state(1)
             return False
 
-        if self.find_asset_index(sec_chip) is None:
+        if self.find_asset("Security Chip") is None:
             print(f"No Security Chip in inventory, cannot {mode} {asset.name}.")
             return False
 
@@ -317,7 +317,6 @@ class Hacker:
         return None
 
     def change_encryption(self, target, asset, mode):
-        sec_chip = Asset("Security Chip", "Used to encrypt or decrypt assets.")
         found_unencrypted = target.find_unencrypted(target, asset)
         found_encrypted = target.find_encrypted(target, asset)
 
@@ -333,12 +332,12 @@ class Hacker:
 
         if mode == "encrypt":
             found_unencrypted.encrypt = True
-            print(f"{self.name} used a {sec_chip.name} to encrypt "
+            print(f"{self.name} used a Security Chip to encrypt "
                   f"a {asset.name} in "
                   f"their {target.get_container_term()}.")
         elif mode == "decrypt":
             found_encrypted.encrypt = False
-            print(f"{self.name} used a {sec_chip.name} to decrypt "
+            print(f"{self.name} used a Security Chip to decrypt "
                   f"a {asset.name} in "
                   f"their {target.get_container_term()}.")
 
@@ -347,23 +346,21 @@ class Hacker:
     # --- General Methods ---
 
     def upgrade_rig(self):
-        hware_patch = Asset("Hardware Patch", "Used to upgrade rigs.")
-        if self.find_asset_index(hware_patch) is None:
-            print(f"No Hardware Patch in inventory, cannot upgrade {self.name}'s rig level.")
-        elif self.__equipped_rig is None:
+        if self.get_rig() is None:
             print(f"Please equip a rig to upgrade.")
+        elif self.find_asset("Hardware Patch") is None:
+            print(f"No Hardware Patch in inventory, cannot upgrade {self.name}'s rig level.")
         else:
-            self.consume_asset(hware_patch)
+            self.consume_asset("Hardware Patch")
             self.get_rig().upgrade = 1
-            self.get_rig().storage = 1
+            self.get_rig().storage_size = 1
             self.get_rig().max_damage = 1
-            print(f"{self.name}'s rig upgraded to level {self.get_rig().upgrade}."
-                  f"\nRig now has {self.get_rig().storage} inventory slots."
-                  f"\n{self.name} total HP is now {self.get_rig().max_damage}")
+            print(f"Hardware Patch used. {self.name}'s rig upgraded to level {self.get_rig().upgrade}."
+                  f"\nRig now has {self.get_rig().storage_size} inventory slots."
+                  f"\n{self.get_rig()} can now take {self.get_rig().max_damage} max damage when fully repaired.")
 
     def start_journey(self, rig_name):
-        cryp_tok = Asset("CryptoToken", "Used to acquire or repair rigs.")
-        if self.find_asset_index(cryp_tok) is None:
+        if self.find_asset("CryptoToken") is None:
             print("No CryptoToken in inventory, cannot equip rig.")
         else:
             self.start_rig(rig_name)
@@ -371,9 +368,7 @@ class Hacker:
             print(f"Welcome to {self.name}'s H.E.V. Mark IV protective system.")
 
     def chop_shop(self):
-        cryp_tok = Asset("CryptoToken", "Used to acquire or repair rigs.")
-
-        if self.count_asset(cryp_tok) < 2:
+        if self.count_asset("CryptoToken") < 2:
             print("You need at least 2 CryptoTokens for "
                   "the chop shop. Better go scrounge under the "
                   "couch.")
@@ -395,13 +390,13 @@ class Hacker:
                 print("You're really testing my patience coming in"
                       " here with that much exposure.")
             if give_tokens in ["Y", "y"]:
-                self.consume_asset(cryp_tok)
-                self.consume_asset(cryp_tok)
+                self.consume_asset("CryptoToken")
+                self.consume_asset("CryptoToken")
                 self.trace = -1
                 self.attack_state = 0
                 self.encryption_flag = False
                 print(f"{self.name} gives shadowy figure 2 "
-                      f"{cryp_tok.name}s")
+                      f"CryptoTokens")
                 print("'A fine trade.' The shadowy figure taps on"
                       " his keyboard, a moment later your HUD shows your "
                       f"trace level is now {self.trace}."
@@ -434,7 +429,6 @@ class Hacker:
             print("A rig needs to be equipped in order to attack.")
 
     def pre_attack_check(self, enemy):
-        d_spike = Asset("Data Spike", "Used in battles.")
 
         if self.get_attack_state() > 0:
             print("Cannot attack.")
@@ -445,7 +439,7 @@ class Hacker:
             print(f"Unable to attack a broken rig.")
             return False
 
-        elif self.get_rig().find_asset_index(d_spike) is None:
+        elif self.get_rig().find_asset("Data Spike") is None:
             print("No Data Spike in storage, cannot deal damage.")
             return False
 

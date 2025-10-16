@@ -26,7 +26,7 @@ def get_asset(name):
 # Load char and rig with items for testing
 def fill_inv_stor(char_rig):
 
-    print(f"{char_rig} filled with items.")
+    print(f"{char_rig.name} filled with items.")
     char_rig.add_asset(get_asset("CryptoToken"))
     char_rig.add_asset(get_asset("Data Spike"))
     char_rig.add_asset(get_asset("Removable Drive"))
@@ -53,32 +53,32 @@ def battle_test():
     print(f"--- Executing battle testing ---")
     hk1, hk2 = starting_procedure_test()
 
-    # Inventory and storage fill
+    hk1.get_rig().remove_asset()
+    hk1.deal_damage(hk2)
+    hk1.deal_damage(hk2)
+    hk1.deal_damage(hk2)
 
-    fill_inv_stor(hk1.get_rig())
-    fill_inv_stor(hk2.get_rig())
 
-    hk1.deal_damage(hk2)
-    hk1.get_rig().remove_asset(get_asset("Data Spike"))
-    hk1.deal_damage(hk2)
-    print(hk2.rig_condition())
-    hk2.get_rig().damage = -2
-    print(hk2.rig_condition())
-    hk2.add_asset(get_asset("Hardware Patch"))
-    hk2.upgrade_rig()
-    hk2.add_asset(get_asset("Hardware Patch"))
-    hk2.upgrade_rig()
-    print(hk2.rig_condition())
-    hk2.get_rig().broken = False
-    print(hk2.get_rig().broken)
-    hk1.deal_damage(hk2)
-    print(hk2.rig_condition())
-    hk1.deal_damage(hk2)
-    print(hk2.rig_condition())
-    hk1.deal_damage(hk2)
-    print(hk2.rig_condition())
-    hk1.deal_damage(hk2)
-    print(hk2.rig_condition())
+    # hk1.get_rig().remove_asset(get_asset("Data Spike"))
+    # hk1.deal_damage(hk2)
+    # print(hk2.rig_condition())
+    # hk2.get_rig().damage = -2
+    # print(hk2.rig_condition())
+    # hk2.add_asset(get_asset("Hardware Patch"))
+    # hk2.upgrade_rig()
+    # hk2.add_asset(get_asset("Hardware Patch"))
+    # hk2.upgrade_rig()
+    # print(hk2.rig_condition())
+    # hk2.get_rig().broken = False
+    # print(hk2.get_rig().broken)
+    # hk1.deal_damage(hk2)
+    # print(hk2.rig_condition())
+    # hk1.deal_damage(hk2)
+    # print(hk2.rig_condition())
+    # hk1.deal_damage(hk2)
+    # print(hk2.rig_condition())
+    # hk1.deal_damage(hk2)
+    # print(hk2.rig_condition())
 
     # hk1.get_rig().add_asset(get_asset("Data Spike"))
     # hk1.get_rig().list_assets()
@@ -119,14 +119,14 @@ def consume_item_test():
 
 def change_encryption_test():
     hk1, hk2 = starting_procedure_test()
-    hk1.add_asset(get_asset("Security Chip"))
-    hk1.add_asset(get_asset("Security Chip"))
+    #hk1.add_asset(get_asset("Security Chip"))
+    # hk1.add_asset(get_asset("Security Chip"))
     hk1.get_rig().add_asset(get_asset("Security Chip"))
-    hk2.add_asset(get_asset("Security Chip"))
-    hk2.get_rig().add_asset(get_asset("Security Chip"))
     # hk2.add_asset(get_asset("Security Chip"))
-    # hk2.add_asset(get_asset("Security Chip"))
-    hk1.change_encryption(hk1.get_rig(), get_asset("Security Chip"), "decrypt")
+    # hk2.get_rig().add_asset(get_asset("Security Chip"))
+    # # hk2.add_asset(get_asset("Security Chip"))
+    # # hk2.add_asset(get_asset("Security Chip"))
+    hk1.change_encryption(hk1.get_rig(), get_asset("Security Chip"), "encrypt")
     # # hk1.change_encryption(hk2, get_asset("Security Chip"), "encrypt")
     # # #
     # # hk2.list_assets()
@@ -157,7 +157,9 @@ def change_encryption_test():
 
 
 def upgrade_rig_level_test():
-    hk1, hk2 = starting_procedure_test()
+    hk1 = Hacker("Godfree Norman")
+    hk1.upgrade_rig()
+    hk1.start_journey("Orange HEV")
     hk1.upgrade_rig()
     hk1.add_asset(get_asset("Hardware Patch"))
     hk1.upgrade_rig()
@@ -173,15 +175,11 @@ def chop_shop_test():
 
     # Inventory and storage fill
     fill_inv_stor(hk1)
-    fill_inv_stor(hk1)
-    fill_inv_stor(hk2)
-    fill_inv_stor(hk1.get_rig())
-    fill_inv_stor(hk2.get_rig())
-
+    hk1.list_assets()
     hk1.chop_shop()
     hk1.edit_trace(5)
     hk1.chop_shop()
-    hk1.chop_shop()
+    # hk1.chop_shop()
 
 
 def asset_transfer_test():
@@ -190,7 +188,7 @@ def asset_transfer_test():
     hk1.add_asset(get_asset("Hardware Patch"))
     hk1.add_asset(get_asset("Hardware Patch"))
 
-    hk2.get_rig().add_asset(get_asset("Hardware Patch"))
+    hk1.get_rig().add_asset(get_asset("Security Chip"))
     hk1.get_rig().add_asset(get_asset("Hardware Patch"))
     hk1.get_rig().add_asset(get_asset("Hardware Patch"))
 
@@ -198,8 +196,12 @@ def asset_transfer_test():
 
     hk2.add_asset(get_asset("Hardware Patch"))
     hk1.list_assets()
-    hk1.asset_transfer(hk1, hk1.get_rig(), get_asset("Hardware Patch"))
+    hk2.get_rig().broken = True
+
+    hk1.asset_transfer(hk1, hk2.get_rig(), get_asset("Hardware Patch"))
     hk1.list_assets()
+
+    print(hk1.get_rig().find_asset("Security Chip"))
 
     # Does from_object asset exist?
 
@@ -244,7 +246,7 @@ def scan_and_remove_test():
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
-# battle_test()
+battle_test()
 # single_asset_transfer()
 # extract_rig_storage_test()
 # consume_item_test()
@@ -253,4 +255,4 @@ def scan_and_remove_test():
 # chop_shop_test()
 # asset_transfer_test()
 # multi_asset_transfer_test()
-scan_and_remove_test()
+# scan_and_remove_test()

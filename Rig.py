@@ -103,9 +103,10 @@ class Rig:
         spent_asset = self.__storage.remove(self.__storage[idx])
         return spent_asset
 
-    def search_assets(self, asset):
-        for idx, i in enumerate(self.__storage):
-            if asset == i:
+    def find_asset(self, asset: "Takes asset as object or string"):
+        find_ref = asset.name if isinstance(asset, Asset) else asset
+        for i in self.__storage:
+            if i.name == find_ref:
                 return i
         return None
 
