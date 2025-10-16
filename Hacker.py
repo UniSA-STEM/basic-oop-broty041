@@ -83,10 +83,10 @@ class Hacker:
         self.__inventory.append(asset)
 
     def remove_asset(self, asset):
-        if self.find_asset_index(asset) is None:
-            print(f"No {asset.name}'s in {self.name}'s inventory.")
-        else:
-            self.__inventory.remove(self.__inventory[self.find_asset_index(asset)])
+        found = self.find_asset(asset)
+        if found:
+            self.__inventory.remove(found)
+        return found
 
     def find_asset(self, asset: "Takes asset as object or string"):
         find_ref = asset.name if isinstance(asset, Asset) else asset
@@ -197,9 +197,7 @@ class Hacker:
     def asset_transfer(self, from_object, to_object, asset):
         if not self.asset_transfer_check(from_object, to_object, asset):
             return
-        idx = from_object.find_asset_index(asset)
-        transfer_asset = from_object.get_asset()[idx]
-
+        transfer_asset = from_object.find_asset(asset)
 
         if isinstance(from_object, Rig) and isinstance(to_object, Rig):
             to_object.add_asset(transfer_asset)
@@ -221,9 +219,6 @@ class Hacker:
         else:
             print("Invalid destination for asset.")
 
-    def consume_asset(self, asset):
-        spent_asset = self.__inventory.remove(self.find_asset(asset))
-        return spent_asset
 
 
     def multi_asset_transfer(self, from_object, to_object):
@@ -328,7 +323,7 @@ class Hacker:
         if mode == "encrypt" and not self.trace_check(target):
             return
 
-        self.consume_asset(sec_chip)
+        self.remove_asset("Security Chip")
 
         if mode == "encrypt":
             found_unencrypted.encrypt = True
@@ -351,7 +346,7 @@ class Hacker:
         elif self.find_asset("Hardware Patch") is None:
             print(f"No Hardware Patch in inventory, cannot upgrade {self.name}'s rig level.")
         else:
-            self.consume_asset("Hardware Patch")
+            self.remove_asset("Hardware Patch")
             self.get_rig().upgrade = 1
             self.get_rig().storage_size = 1
             self.get_rig().max_damage = 1
@@ -390,8 +385,8 @@ class Hacker:
                 print("You're really testing my patience coming in"
                       " here with that much exposure.")
             if give_tokens in ["Y", "y"]:
-                self.consume_asset("CryptoToken")
-                self.consume_asset("CryptoToken")
+                self.remove_asset("CryptoToken")
+                self.remove_asset("CryptoToken")
                 self.trace = -1
                 self.attack_state = 0
                 self.encryption_flag = False
@@ -448,12 +443,10 @@ class Hacker:
         return True
 
     def deal_damage(self, enemy):
-        d_spike = Asset("Data Spike", "Used in battles.")
-
         if self.pre_attack_check(enemy):
-            self.get_rig().consume_asset(d_spike)
+            self.get_rig().remove_asset("Data Spike")
             enemy.get_rig().damage = 1
-            print(f"{self.name} launched {d_spike.name}"
+            print(f"{self.name} launched Data Spike"
                   f"\n{enemy.name} took 1 damage."
                   f"\n{enemy.name} rig: {enemy.get_rig().damage}/{enemy.get_rig().max_damage} Damage")
 

@@ -89,19 +89,10 @@ class Rig:
         return True
 
     def remove_asset(self, asset):
-        if self.find_asset_index(asset) is None:
-            print(f"No {asset.name}'s in inventory.")
-        else:
-            print(f"{asset.name} removed from {self.owner}'s rig storage.")
-            self.__storage.remove(self.__storage[self.find_asset_index(asset)])
-
-    def consume_asset(self, asset):
-        idx = self.find_asset_index(asset)
-        if idx is None:
-            print(f"No {asset.name} in storage.")
-            return None
-        spent_asset = self.__storage.remove(self.__storage[idx])
-        return spent_asset
+        found = self.find_asset(asset)
+        if found:
+            self.__storage.remove(found)
+        return found
 
     def find_asset(self, asset: "Takes asset as object or string"):
         find_ref = asset.name if isinstance(asset, Asset) else asset

@@ -53,10 +53,10 @@ def battle_test():
     print(f"--- Executing battle testing ---")
     hk1, hk2 = starting_procedure_test()
 
-    hk1.get_rig().remove_asset()
-    hk1.deal_damage(hk2)
-    hk1.deal_damage(hk2)
-    hk1.deal_damage(hk2)
+    hk1.remove_asset("Data Spike")
+    # hk1.deal_damage(hk2)
+    # hk1.deal_damage(hk2)
+    # hk1.deal_damage(hk2)
 
 
     # hk1.get_rig().remove_asset(get_asset("Data Spike"))
@@ -120,7 +120,7 @@ def consume_item_test():
 def change_encryption_test():
     hk1, hk2 = starting_procedure_test()
     #hk1.add_asset(get_asset("Security Chip"))
-    # hk1.add_asset(get_asset("Security Chip"))
+    hk1.add_asset(get_asset("Security Chip"))
     hk1.get_rig().add_asset(get_asset("Security Chip"))
     # hk2.add_asset(get_asset("Security Chip"))
     # hk2.get_rig().add_asset(get_asset("Security Chip"))
@@ -199,6 +199,8 @@ def asset_transfer_test():
     hk2.get_rig().broken = True
 
     hk1.asset_transfer(hk1, hk2.get_rig(), get_asset("Hardware Patch"))
+    hk1.asset_transfer(hk1, hk2.get_rig(), get_asset("Hardware Patch"))
+
     hk1.list_assets()
 
     print(hk1.get_rig().find_asset("Security Chip"))
@@ -246,7 +248,7 @@ def scan_and_remove_test():
 
 # --- Main Testing Sequence ---
 # starting_procedure_test()
-battle_test()
+# battle_test()
 # single_asset_transfer()
 # extract_rig_storage_test()
 # consume_item_test()
@@ -254,5 +256,5 @@ battle_test()
 # upgrade_rig_level_test()
 # chop_shop_test()
 # asset_transfer_test()
-# multi_asset_transfer_test()
+multi_asset_transfer_test()
 # scan_and_remove_test()
