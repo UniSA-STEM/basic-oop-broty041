@@ -115,13 +115,6 @@ class Hacker:
                 return i
         return None
 
-    # def extract_rig_check(self, from_object, to_object):
-    #
-    #
-    # def extract_rigs_storage(self, from_object, to_object):
-    #
-    #
-
     def transfer_asset(self, from_object, to_object, asset):
         """ Basic core transferring of asset without validation."""
         found = from_object.find_asset(asset)
@@ -136,47 +129,59 @@ class Hacker:
         """ Validates and performs transfers only on storage and
             inventory the Hacker owns."""
 
+        # Using asset object as safer than using the string parameter
+        found_asset = from_object.find_asset(asset)
+
         allow_transfer = True
 
-        # Check the rigs storage level.
-        if isinstance(to_object, Rig):
-            if len(to_object.get_asset()) >= to_object.get_storage_size():
-                print(f"{to_object.name}'s storage is full."
-                      f" Unable to transfer asset.")
+        # Checks for transfers rig to hacker
+        if allow_transfer and isinstance(from_object, Rig) and isinstance(to_object, Hacker):
+            if from_object.owner != to_object:
+                print("You must perform extraction to transfer "
+                      "assets from an opponents rig.")
+                allow_transfer = False
+
+        # Checks for transfers hacker to rig
+        if allow_transfer and isinstance(from_object, Hacker) and isinstance(to_object, Rig):
+            if to_object.owner != from_object:
+                print("You must perform extraction to transfer "
+                      "assets from an opponents rig.")
                 allow_transfer = False
 
         # Check that the from_object exists at the origin.
         if allow_transfer and not from_object.find_asset(asset):
-            print(f"{asset.name} not found on {from_object.name}")
+            if isinstance(from_object, Rig) and isinstance(to_object, Hacker):
+                print(f"{asset} not found in {from_object.owner.name}'s rig.")
+                allow_transfer = False
+            elif isinstance(from_object, Hacker) and isinstance(to_object, Rig):
+                print(f"{asset} not found in {from_object.name}'s inventory.")
+                allow_transfer = False
+
+        # Check the rigs storage level.
+        if isinstance(to_object, Rig):
+            if len(to_object.get_asset()) >= to_object.get_storage_size():
+                print(f"{to_object.owner.name}'s rig is full."
+                      f" Unable to transfer asset.")
+                allow_transfer = False
+
+        # Check if asset is encrypted
+        if allow_transfer and found_asset.encrypt:
+            print(f"{found_asset.name} encrypted, please decrypt before transferring.")
             allow_transfer = False
-
-        # Checks for transfers rig to hacker
-        if allow_transfer and isinstance(from_object, Rig) and isinstance(to_object, Hacker):
-            if from_object.find_asset(asset):
-                    if from_object.owner != to_object:
-                        print("You must perform extraction to transfer "
-                              "assets from an opponents rig.")
-                        allow_transfer = False
-
-        # Checks for transfers hacker to rig
-        if allow_transfer and isinstance(from_object, Hacker) and isinstance(to_object, Rig):
-                if to_object.owner != from_object:
-                    print("You must perform extraction to transfer "
-                          "assets from an opponents rig.")
-                    allow_transfer = False
 
         # Perform the transfer after validation
         if allow_transfer:
+
             self.transfer_asset(from_object, to_object, asset)
 
             if isinstance(from_object, Rig) and isinstance(to_object, Rig):
-                print(f"{asset.name} transferred from {from_object.owner}"
+                print(f"{found_asset.name} transferred from {from_object.owner}"
                       f"'s rig to {to_object.owner}'s rig.")
             elif isinstance(to_object, Rig):
-                print(f"{asset.name} transferred from {from_object.name}"
+                print(f"{found_asset.name} transferred from {from_object.name}"
                       f" inventory to rig.")
             elif isinstance(from_object, Rig):
-                print(f"{asset.name} transferred from {to_object.name}"
+                print(f"{found_asset.name} transferred from {to_object.name}"
                       f"'s rig to inventory.")
             else:
                 # In case the game is expanded with more assets
@@ -191,7 +196,6 @@ class Hacker:
         else:
             for i in from_object.get_asset().copy():
                 self.perform_transfer(from_object, to_object, i)
-
 
     def extract_rig_storage(self, enemy):
         """ Validates and performs transfers only on opponent
@@ -212,103 +216,103 @@ class Hacker:
             print("No Removable Drive in rig storage. It's required for extraction.")
             allow_extraction = False
 
-
         if allow_extraction:
-
-
             loop_storage = enemy.get_asset().copy()
             unsecure_count = 0
             secure_count = 0
 
             for i in loop_storage:
-                if not i.get_encryption():
+                if not i.encrypt:
                     self.transfer_asset(enemy, self, i)
                     unsecure_count += 1
                 else:
                     secure_count += 1
 
-            print(f"{unsecure_count} unsecured assets transferred "
+            self.get_rig().remove_asset("Removable Drive")
+
+            # Trace increments +1 per extraction
+            self.adjust_trace(enemy)
+
+            # Chose to use (s) to increase readability of code...
+            # slightly.
+            print(f"{unsecure_count} unsecured asset(s) transferred "
                   f"from {enemy.owner.name}'s rig to {self.name}'s "
                   f"inventory."
-                  f"\n{secure_count} secure assets not transferred.")
-
-
-    # --- Encryption, decryption and trace methods ---
-    def trace_check(self, target):
-
-        if isinstance(target, Rig):
-            if target.owner is self:
-                return True
-
-        if target.name is self.name:
+                  f"\n{secure_count} secure asset(s) remain.")
             return True
+        return False
 
-        if self.trace == 5:
-            self.change_attack_state(1)
-            return False
-
-        self.trace = 1
-        print(f"ALERT! RISKY ACTION DETECTED!")
-        if self.trace < 5:
-            print(f"Trace level now: {self.trace}")
-        if self.trace == 5:
-            self.change_attack_state(1)
-            self.encryption_flag = False
-        return True
+    # --- Encryption methods---
 
     def verify_encryption(self, target, asset, mode):
+        """Validation to allow encryption to occur."""
+        allow_encryption = True
+
+        # Using asset object as safer than using the string parameter
+        found_asset = target.find_asset(asset)
+
+        # Check if the asset exists
+        if allow_encryption and target.find_asset(asset) is None:
+            print(f"Can't find a {asset}.")
+            allow_encryption = False
+
+        # Prevent decryption of enemy's encrypted assets
         if isinstance(target, Rig):
             if target.owner != self:
-                print("Cannot encrypt or decrypt assets in a "
-                      "hacker's rig.")
-                return False
+                print("Cannot encrypt or decrypt assets in an "
+                      "enemy hacker's rig.")
+                allow_encryption = False
 
-        if isinstance(target, Hacker):
+        if allow_encryption and isinstance(target, Hacker):
             if target != self:
                 print("Cannot encrypt or decrypt assets in a "
                       "hacker's inventory.")
-                return False
+                allow_encryption = False
 
-        if mode == "encrypt" and not self.set_encryption_flag:
+        # Check if the hacker is exposed
+        if allow_encryption and mode == "encrypt" and not self.set_encryption_flag:
             self.change_attack_state(1)
-            return False
+            allow_encryption = False
 
-        if self.find_asset("Security Chip") is None:
-            print(f"No Security Chip in inventory, cannot {mode} {asset.name}.")
-            return False
+        # Check if the hacker has a security chip
+        if allow_encryption and self.find_asset("Security Chip") is None:
+            print(f"No Security Chip in inventory, cannot encrypt/"
+                  f"decrypt {found_asset.name}.")
+            allow_encryption = False
 
-        if target.find_asset_index(asset) is None:
-            print(f"Can't find a {asset.name}.")
-            return False
-
-        if mode == "encrypt":
+        # Check if asset already encrypted
+        if allow_encryption and mode == "encrypt":
             asset_found = target.find_unencrypted(target, asset)
             if asset_found is None:
-                print(f"{asset.name} is already encrypted.")
-                return False
+                print(f"{found_asset.name} is already encrypted.")
+                allow_encryption = False
 
-        elif mode == "decrypt":
+        # Check if asset already decrypted
+        if allow_encryption and mode == "decrypt":
             asset_found = target.find_encrypted(target, asset)
-            if asset_found is None:
-                print(f"The {asset.name} in {self.name}'s {target.get_container_term()} is not encrypted.")
-                return False
+            if not asset_found:
+                print(f"The {asset} in {self.name}'s {target.get_container_term()} is not encrypted.")
+                allow_encryption = False
 
-        else:
-            print(f"{mode} is not valid. Please enter 'encrypt' or 'decrypt'.")
-            return False
+        # Check if mode is invalid
+        if allow_encryption and (mode != "encrypt" and mode != "decrypt"):
+            print(f"Please enter 'encrypt' or 'decrypt', {mode} is not valid. .")
+            allow_encryption = False
 
-        return True
+        return allow_encryption
 
     def find_unencrypted(self, target, asset):
+        find_ref = asset.name if isinstance(asset, Asset) else asset
         for i in target.get_asset():
-            if i.name == asset.name:
+            if i.name == find_ref:
                 if not i.encrypt:
                     return i
         return None
 
     def find_encrypted(self, target, asset):
+        find_ref = asset.name if isinstance(asset, Asset) else asset
         for i in target.get_asset():
-            if i.name == asset.name:
+            if i.name == find_ref:
                 if i.encrypt:
                     return i
         return None
@@ -317,26 +321,54 @@ class Hacker:
         found_unencrypted = target.find_unencrypted(target, asset)
         found_encrypted = target.find_encrypted(target, asset)
 
+        # Validating if encryption can be performed
         if not self.verify_encryption(target, asset, mode):
-            return
-
-        if mode == "encrypt" and not self.trace_check(target):
-            return
+            return False
 
         self.remove_asset("Security Chip")
 
         if mode == "encrypt":
             found_unencrypted.encrypt = True
             print(f"{self.name} used a Security Chip to encrypt "
-                  f"a {asset.name} in "
+                  f"a {found_unencrypted.name} in "
                   f"their {target.get_container_term()}.")
         elif mode == "decrypt":
             found_encrypted.encrypt = False
             print(f"{self.name} used a Security Chip to decrypt "
-                  f"a {asset.name} in "
+                  f"a {found_encrypted.name} in "
                   f"their {target.get_container_term()}.")
 
     # --- General Methods ---
+    def adjust_trace(self, target):
+        """Increases trace only for the player and prints messages
+            displaying changes."""
+        allow_trace_increment = True
+
+        # Check if a rig is the players
+        if isinstance(target, Rig):
+            if target.owner is self:
+                allow_trace_increment = False
+
+        # Check if it's the player
+        if target.name is self.name:
+            allow_trace_increment = False
+
+        # Check if already at trace level 5 exposed
+        if self.trace == 5:
+            self.change_attack_state(1)
+            allow_trace_increment = False
+
+        if allow_trace_increment:
+            self.trace = 1
+            print(f"ALERT! RISKY ACTION DETECTED!")
+            if self.trace < 5:
+                print(f"Trace level now: {self.trace}")
+            if self.trace == 5:
+                self.change_attack_state(1)
+                self.encryption_flag = False
+            allow_trace_increment = True
+
+        return allow_trace_increment
 
     def upgrade_rig(self):
         if self.get_rig() is None:
@@ -386,6 +418,9 @@ class Hacker:
             print(f"Welcome to {self.name}'s H.E.V. Mark IV protective system.")
 
     def chop_shop(self):
+        """Provides a way for the player to reduce their trace and
+            remove exposure."""
+
         if self.count_asset("CryptoToken") < 2:
             print("You need at least 2 CryptoTokens for "
                   "the chop shop. Better go scrounge under the "
@@ -430,8 +465,8 @@ class Hacker:
             else:
                 print("Invalid input. Enter Y or N.")
 
-    # --- Battle Related Methods ---
 
+    # --- Battle methods ---
     def change_attack_state(self, state):
         if state == 1:
             self.attack_state = 1
@@ -458,7 +493,7 @@ class Hacker:
             print("No Data Spike in storage, cannot deal damage.")
             return False
 
-        self.trace_check(enemy)
+        self.adjust_trace(enemy)
 
         return True
 
@@ -473,21 +508,9 @@ class Hacker:
         if enemy.get_rig().damage >= enemy.get_rig().max_damage:
             enemy.get_rig().broken = True
 
-    def rig_condition(self):
-        damage = self.get_rig().damage
-        level = self.get_rig().upgrade
-        half = self.get_rig().max_damage / 2
 
-        if damage == 0:
-            return f"Pristine (Level {level})"
-        elif damage == self.get_rig().max_damage:
-            return f"Broken (Level {level})"
-        elif damage > half:
-            return f"Poor (Level {level})"
-        else:
-            return f"Usable (Level {level})"
 
     def __str__(self):
-        return (f"{self.name} {self.__equipped_rig} {self.__trace_level}\n"
+        return (f"Hacker: {self.name} | Rig: {self.__equipped_rig.name} | Trace level: {self.__trace_level}\n"
                 f"Inventory: \n" +
                 f"\n".join(str(i) for i in self.__inventory))

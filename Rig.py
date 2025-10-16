@@ -7,6 +7,8 @@ Username: <broty041>
 This is my own work as defined by the University's Academic Misconduct Policy.
 """
 from Asset import Asset
+import random
+
 
 class Rig:
     class_type = "rig"
@@ -31,11 +33,13 @@ class Rig:
     # --- Getters and Setters ---
     def list_assets(self):
         if not self.__storage:
-            print(f"{self.owner}'s rig's storage is empty.")
+            print(f"{self.owner.name}'s rig's storage is empty.")
         else:
-            print(f"{self.name} contains {len(self.get_asset())} items::")
+            print(f"{self.owner.name}'s rig contains {len(self.get_asset())} items:")
             for i in self.__storage:
                 print(i)
+
+
 
     def get_asset(self):
         return self.__storage
@@ -108,15 +112,17 @@ class Rig:
         return None
 
     def find_unencrypted(self, target, asset):
+        find_ref = asset.name if isinstance(asset, Asset) else asset
         for i in target.get_asset():
-            if i.name == asset.name:
+            if i.name == find_ref:
                 if not i.encrypt:
                     return i
         return None
 
     def find_encrypted(self, target, asset):
+        find_ref = asset.name if isinstance(asset, Asset) else asset
         for i in target.get_asset():
-            if i.name == asset.name:
+            if i.name == find_ref:
                 if i.encrypt:
                     return i
         return None
@@ -124,12 +130,54 @@ class Rig:
     def scan_and_remove(self, asset):
         for i in self.__storage:
             if asset == i.name:
-
                 self.__storage.remove(i)
 
                 return i
         return None
 
+    def generate_asset(self):
+
+        allow_creation = True
+
+        if len(self.get_asset()) >= self.get_storage_size():
+            print("Storage full, unable to generate an asset.")
+            allow_creation = False
+
+        if allow_creation:
+            # Generate random asset from list of assets
+            asset_list = [
+                ["CryptoToken", "Used to acquire or repair rigs."],
+                ["Data Spike", "Used in battles."],
+                ["Removable Drive", "Found in rigs and used for extraction."],
+                ["Security Chip", "Used to encrypt or decrypt assets."],
+                ["Hardware Patch", "Used to upgrade rigs."]
+            ]
+
+            x = random.randint(0, 4)
+
+            assets_name = asset_list[x][0]
+            assets_desc = asset_list[x][1]
+            self.add_asset(Asset(assets_name, assets_desc))
+            print(f"Generated a {assets_name}.")
+            return True
+
+        return False
+
+    def rig_condition(self):
+        damage = self.damage
+        level = self.upgrade
+        half = self.max_damage / 2
+
+        if damage == 0:
+            return f"Pristine (Level {level})"
+        elif damage == self.max_damage:
+            return f"Broken (Level {level})"
+        elif damage > half:
+            return f"Poor (Level {level})"
+        else:
+            return f"Usable (Level {level})"
 
     def __str__(self):
-        return self.name
+        return (f"{self.name} | Condition: {self.rig_condition()}"
+                f"\nInventory: \n" +
+                f"\n".join(str(i) for i in self.__storage))
