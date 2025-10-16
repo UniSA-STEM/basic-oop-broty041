@@ -69,7 +69,6 @@ class Hacker:
     def get_container_term(self):
         return "inventory"
 
-
     # --- Property Attributes ---
     trace = property(get_trace, set_trace)
     attack_state = property(get_attack_state, set_attack_state)
@@ -111,122 +110,127 @@ class Hacker:
     def scan_and_remove(self, asset):
         for i in self.__inventory:
             if asset == i.name:
-
                 self.__inventory.remove(i)
 
                 return i
         return None
 
-
     # def extract_rig_check(self, from_object, to_object):
-    #     storage_copy = from_object.get_asset().copy()
-    #     if from_object.broken is False:
-    #         print(f"{from_object.owner}'s rig must be broken before extracting assets.")
-    #         return False
     #
-    #     if len(storage_copy) == 0:
-    #         print(f"{from_object.name}'s storage is empty. Nothing to extract.")
-    #         return False
-    #
-    #     if to_object.find_asset_index(Asset("Removable Drive", "Found in rigs and used for extraction.")) is None:
-    #         print("No Removable Drive in rig storage.\n"
-    #               "A Removable Drive is required to extract another broken rig's assets.")
-    #         return False
-    #
-    #     return True
     #
     # def extract_rigs_storage(self, from_object, to_object):
     #
-    #     if self.extract_rig_check(from_object, to_object):
     #
-    #         print("Starting rig extraction.")
-    #
-    #
-    #         loop_storage = from_object.get_asset().copy()
-    #         unsecure_count = 0
-    #         secure_count = 0
-    #
-    #         for i in loop_storage:
-    #             if i.get_encryption() is False:
-    #                 self.asset_transfer(from_object, to_object, i)
-    #                 unsecure_count += 1
-    #             else:
-    #                 secure_count += 1
-    #
-    #         print(f"{unsecure_count} unsecured assets transferred from {from_object} to {to_object}."
-    #               f"\n{secure_count} secure assets not transferred.")
-    #
-    #
-    #
-    #         print("Completed rig extraction.")
 
-    def asset_transfer_check(self, from_object, to_object, asset):
+    def transfer_asset(self, from_object, to_object, asset):
+        """ Basic core transferring of asset without validation."""
+        found = from_object.find_asset(asset)
 
+        if found:
+            to_object.add_asset(found)
+            from_object.remove_asset(found)
+            return True
+        return False
+
+    def perform_transfer(self, from_object, to_object, asset):
+        """ Validates and performs transfers only on storage and
+            inventory the Hacker owns."""
+
+        allow_transfer = True
+
+        # Check the rigs storage level.
         if isinstance(to_object, Rig):
             if len(to_object.get_asset()) >= to_object.get_storage_size():
-
                 print(f"{to_object.name}'s storage is full."
                       f" Unable to transfer asset.")
-                return False
+                allow_transfer = False
 
-        if not from_object.find_asset(asset):
+        # Check that the from_object exists at the origin.
+        if allow_transfer and not from_object.find_asset(asset):
             print(f"{asset.name} not found on {from_object.name}")
-            return False
+            allow_transfer = False
 
-        if isinstance(from_object, Rig) and isinstance(to_object, Hacker):
+        # Checks for transfers rig to hacker
+        if allow_transfer and isinstance(from_object, Rig) and isinstance(to_object, Hacker):
             if from_object.find_asset(asset):
-                if not from_object.broken:
-                    if from_object.owner !=  to_object:
-                        print("To transfer assets from an opponents rig, "
-                              "it must be broken and your rig must hold "
-                              "a 'Removable Drive'.")
-                        return False
+                    if from_object.owner != to_object:
+                        print("You must perform extraction to transfer "
+                              "assets from an opponents rig.")
+                        allow_transfer = False
 
-        if isinstance(from_object, Hacker) and isinstance(to_object, Rig):
-            if not to_object.broken:
-                if to_object.owner !=  from_object:
-                    print("To transfer assets from an opponents rig, "
-                          "it must be broken and your rig must hold "
-                          "a 'Removable Drive'.")
-                    return False
+        # Checks for transfers hacker to rig
+        if allow_transfer and isinstance(from_object, Hacker) and isinstance(to_object, Rig):
+                if to_object.owner != from_object:
+                    print("You must perform extraction to transfer "
+                          "assets from an opponents rig.")
+                    allow_transfer = False
 
+        # Perform the transfer after validation
+        if allow_transfer:
+            self.transfer_asset(from_object, to_object, asset)
 
-        return True
+            if isinstance(from_object, Rig) and isinstance(to_object, Rig):
+                print(f"{asset.name} transferred from {from_object.owner}"
+                      f"'s rig to {to_object.owner}'s rig.")
+            elif isinstance(to_object, Rig):
+                print(f"{asset.name} transferred from {from_object.name}"
+                      f" inventory to rig.")
+            elif isinstance(from_object, Rig):
+                print(f"{asset.name} transferred from {to_object.name}"
+                      f"'s rig to inventory.")
+            else:
+                # In case the game is expanded with more assets
+                print("Invalid destination for asset.")
 
+            return True
+        return False
 
-    def asset_transfer(self, from_object, to_object, asset):
-        if not self.asset_transfer_check(from_object, to_object, asset):
-            return
-        transfer_asset = from_object.find_asset(asset)
-
-        if isinstance(from_object, Rig) and isinstance(to_object, Rig):
-            to_object.add_asset(transfer_asset)
-            from_object.remove_asset(asset)
-            print(f"{asset.name} transferred from {from_object.owner}"
-                  f"'s rig to {to_object.owner}'s rig.")
-        elif isinstance(to_object, Rig):
-            to_object.add_asset(transfer_asset)
-            from_object.remove_asset(asset)
-            print(f"{asset.name} transferred from {from_object.name}'s"
-                  f" inventory to {to_object.owner}'s rig.")
-        elif isinstance(from_object, Rig):
-            to_object.add_asset(transfer_asset)
-            from_object.remove_asset(asset)
-            print(f"{asset.name} transferred from {from_object.owner}"
-                  f"'s rig to {to_object.name}.")
-
-
-        else:
-            print("Invalid destination for asset.")
-
-
-
-    def multi_asset_transfer(self, from_object, to_object):
+    def perform_multi_transfer(self, from_object, to_object):
         if not from_object.get_asset().copy():
             print(f"{from_object}'s {from_object.get_container_term()} contains no assets.")
         else:
             for i in from_object.get_asset().copy():
-                from_object.asset_transfer(from_object, to_object, i)
+                self.perform_transfer(from_object, to_object, i)
+
+
+    def extract_rig_storage(self, enemy):
+        """ Validates and performs transfers only on opponent
+            hackers broken rig."""
+        allow_extraction = True
+
+        # Check enemy rigs storage level.
+        if not enemy.broken:
+            print(f"{enemy.owner.name}'s rig must be broken before extracting assets.")
+            allow_extraction = False
+
+        # Check that enemy rig has assets in storage.
+        if allow_extraction and len(enemy.get_asset()) == 0:
+            print(f"{enemy.name}'s storage is empty. Nothing to extract.")
+            allow_extraction = False
+
+        if allow_extraction and not self.get_rig().find_asset("Removable Drive"):
+            print("No Removable Drive in rig storage. It's required for extraction.")
+            allow_extraction = False
+
+
+        if allow_extraction:
+
+
+            loop_storage = enemy.get_asset().copy()
+            unsecure_count = 0
+            secure_count = 0
+
+            for i in loop_storage:
+                if not i.get_encryption():
+                    self.transfer_asset(enemy, self, i)
+                    unsecure_count += 1
+                else:
+                    secure_count += 1
+
+            print(f"{unsecure_count} unsecured assets transferred "
+                  f"from {enemy.owner.name}'s rig to {self.name}'s "
+                  f"inventory."
+                  f"\n{secure_count} secure assets not transferred.")
 
 
     # --- Encryption, decryption and trace methods ---
@@ -246,7 +250,7 @@ class Hacker:
         self.trace = 1
         print(f"ALERT! RISKY ACTION DETECTED!")
         if self.trace < 5:
-              print(f"Trace level now: {self.trace}")
+            print(f"Trace level now: {self.trace}")
         if self.trace == 5:
             self.change_attack_state(1)
             self.encryption_flag = False
@@ -254,13 +258,13 @@ class Hacker:
 
     def verify_encryption(self, target, asset, mode):
         if isinstance(target, Rig):
-            if target.owner !=  self:
+            if target.owner != self:
                 print("Cannot encrypt or decrypt assets in a "
                       "hacker's rig.")
                 return False
 
         if isinstance(target, Hacker):
-            if target !=  self:
+            if target != self:
                 print("Cannot encrypt or decrypt assets in a "
                       "hacker's inventory.")
                 return False
@@ -276,8 +280,6 @@ class Hacker:
         if target.find_asset_index(asset) is None:
             print(f"Can't find a {asset.name}.")
             return False
-
-
 
         if mode == "encrypt":
             asset_found = target.find_unencrypted(target, asset)
@@ -315,8 +317,6 @@ class Hacker:
         found_unencrypted = target.find_unencrypted(target, asset)
         found_encrypted = target.find_encrypted(target, asset)
 
-
-
         if not self.verify_encryption(target, asset, mode):
             return
 
@@ -336,8 +336,6 @@ class Hacker:
                   f"a {asset.name} in "
                   f"their {target.get_container_term()}.")
 
-
-
     # --- General Methods ---
 
     def upgrade_rig(self):
@@ -353,6 +351,31 @@ class Hacker:
             print(f"Hardware Patch used. {self.name}'s rig upgraded to level {self.get_rig().upgrade}."
                   f"\nRig now has {self.get_rig().storage_size} inventory slots."
                   f"\n{self.get_rig()} can now take {self.get_rig().max_damage} max damage when fully repaired.")
+
+    def repair_rig(self):
+        minus_damage = self.get_rig().damage - (self.get_rig().damage * 2)
+        self.get_rig().damage = minus_damage
+
+    def perform_repair(self):
+
+        allow_repair = True
+
+        if self.get_rig().damage == 0:
+            print("Rig is in perfect condition. Nothing to repair.")
+            allow_repair = False
+
+        if allow_repair and not self.find_asset("CryptoToken"):
+            print("CryptoToken is needed in your inventory "
+                  "to perform repair.")
+            allow_repair = False
+
+        if allow_repair:
+            self.repair_rig()
+            self.get_rig().broken = False
+            self.remove_asset("CryptoToken")
+            print(f"Used CryptoToken to fully repair rig.")
+
+        return True
 
     def start_journey(self, rig_name):
         if self.find_asset("CryptoToken") is None:
@@ -406,9 +429,6 @@ class Hacker:
                 return False
             else:
                 print("Invalid input. Enter Y or N.")
-
-
-
 
     # --- Battle Related Methods ---
 
