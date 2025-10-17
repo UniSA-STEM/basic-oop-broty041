@@ -12,8 +12,24 @@ from Rig import Rig
 
 
 class Hacker:
+    # Class Docstring
+    """
+    Hacker is a character that interacts with the game world. It can
+    perform actions, interact with rigs, other hackers and assets.
 
+    Attributes
+    ----------
+    name: str
+        Name of the hacker.
+    __inventory: list
+        Lists the hackers assets.
+    __equipped_rig: bool
+        Shows if hacker currently has a instantiated rig equipped.
+    __trace_level: int
+        Tracks a hackers exposure.
+    __attack_state: int
 
+    """
     def __init__(self, name):
         self.name = name
         self.__inventory = [Asset("CryptoToken", "Used to acquire or repair rigs.")]
@@ -66,9 +82,6 @@ class Hacker:
     def get_equipped_status(self):
         return self.__equipped_rig
 
-    def get_container_term(self):
-        return "inventory"
-
     # --- Property Attributes ---
     trace = property(get_trace, set_trace)
     attack_state = property(get_attack_state, set_attack_state)
@@ -101,12 +114,6 @@ class Hacker:
                 count += 1
         return count
 
-    def find_asset_index(self, asset):
-        for idx, i in enumerate(self.__inventory):
-            if asset == i:
-                return idx
-        return None
-
     def scan_and_remove(self, asset):
         for i in self.__inventory:
             if asset == i.name:
@@ -115,8 +122,9 @@ class Hacker:
                 return i
         return None
 
-    def transfer_asset(self, from_object, to_object, asset):
-        """ Basic core transferring of asset without validation."""
+    def __transfer_asset(self, from_object, to_object, asset):
+        """Private method that is the base for transferring of assets.
+            Should only be called after validation."""
         found = from_object.find_asset(asset)
 
         if found:
@@ -126,8 +134,22 @@ class Hacker:
         return False
 
     def perform_transfer(self, from_object, to_object, asset):
-        """ Validates and performs transfers only on storage and
-            inventory the Hacker owns."""
+        """
+        Validates and performs transfers only on storage and
+        inventory the Hacker owns. An object transfers FROM
+        somewhere, TO somewhere.
+
+            Parameters:
+            from_object: object
+                The source of the object being transferred.
+            to_object: object
+                The destination for the object being transferred.
+            asset: str or object
+                Reference to the object being transferred.
+
+            Returns:
+                bool: True for a successful transfer, otherwise False.
+        """
 
         # Using asset object as safer than using the string parameter
         found_asset = from_object.find_asset(asset)
@@ -159,7 +181,7 @@ class Hacker:
 
         # Check the rigs storage level.
         if isinstance(to_object, Rig):
-            if len(to_object.get_asset()) >= to_object.get_storage_size():
+            if len(to_object.get_asset()) >= to_object.storage_size:
                 print(f"{to_object.owner.name}'s rig is full."
                       f" Unable to transfer asset.")
                 allow_transfer = False
@@ -172,8 +194,9 @@ class Hacker:
         # Perform the transfer after validation
         if allow_transfer:
 
-            self.transfer_asset(from_object, to_object, asset)
+            self.__transfer_asset(from_object, to_object, asset)
 
+            # Different print output based on the combination of objects.
             if isinstance(from_object, Rig) and isinstance(to_object, Rig):
                 print(f"{found_asset.name} transferred from {from_object.owner}"
                       f"'s rig to {to_object.owner}'s rig.")
@@ -192,8 +215,6 @@ class Hacker:
 
     def perform_multi_transfer(self, from_object, to_object):
         if not from_object.get_asset().copy():
-            print(f"{from_object}'s {from_object.get_container_term()} contains no assets.")
-        else:
             for i in from_object.get_asset().copy():
                 self.perform_transfer(from_object, to_object, i)
 
@@ -223,7 +244,7 @@ class Hacker:
 
             for i in loop_storage:
                 if not i.encrypt:
-                    self.transfer_asset(enemy, self, i)
+                    self.__transfer_asset(enemy, self, i)
                     unsecure_count += 1
                 else:
                     secure_count += 1
@@ -253,7 +274,10 @@ class Hacker:
 
         # Check if the asset exists
         if allow_encryption and target.find_asset(asset) is None:
-            print(f"Can't find a {asset}.")
+            location = "rig" if isinstance(target, Rig) else "inventory"
+            name = asset.name if isinstance(asset, Asset) else asset
+            print(f"{name} not found in {self.name}'s {location}.")
+
             allow_encryption = False
 
         # Prevent decryption of enemy's encrypted assets
@@ -269,6 +293,11 @@ class Hacker:
                       "hacker's inventory.")
                 allow_encryption = False
 
+        # Check if mode is invalid
+        if allow_encryption and (mode != "encrypt" and mode != "decrypt"):
+            print(f"Please enter 'encrypt' or 'decrypt', '{mode}' is not valid. .")
+            allow_encryption = False
+
         # Check if the hacker is exposed
         if allow_encryption and mode == "encrypt" and not self.set_encryption_flag:
             self.change_attack_state(1)
@@ -276,50 +305,45 @@ class Hacker:
 
         # Check if the hacker has a security chip
         if allow_encryption and self.find_asset("Security Chip") is None:
-            print(f"No Security Chip in inventory, cannot encrypt/"
-                  f"decrypt {found_asset.name}.")
+            print(f"No Security Chip in inventory, cannot {mode} "
+                  f"{found_asset.name}.")
             allow_encryption = False
 
         # Check if asset already encrypted
         if allow_encryption and mode == "encrypt":
-            asset_found = target.find_unencrypted(target, asset)
+            asset_found = target.find_encryption_target(target, asset, mode)
             if asset_found is None:
                 print(f"{found_asset.name} is already encrypted.")
                 allow_encryption = False
 
         # Check if asset already decrypted
         if allow_encryption and mode == "decrypt":
-            asset_found = target.find_encrypted(target, asset)
+            asset_found = target.find_encryption_target(target, asset, mode)
             if not asset_found:
-                print(f"The {asset} in {self.name}'s {target.get_container_term()} is not encrypted.")
+                if isinstance(target, Rig):
+                    print(f"{found_asset.name} in {self.name}'s rig isn't encrypted.")
+                else:
+                    print(f"{found_asset.name} in {self.name}'s inventory isn't encrypted.")
                 allow_encryption = False
-
-        # Check if mode is invalid
-        if allow_encryption and (mode != "encrypt" and mode != "decrypt"):
-            print(f"Please enter 'encrypt' or 'decrypt', {mode} is not valid. .")
-            allow_encryption = False
 
         return allow_encryption
 
-    def find_unencrypted(self, target, asset):
+    def find_encryption_target(self, target, asset, mode):
+        """Find if inventory contains an asset thats not encrypted,
+            or an asset with encryption set that can be decrypted"""
         find_ref = asset.name if isinstance(asset, Asset) else asset
         for i in target.get_asset():
             if i.name == find_ref:
-                if not i.encrypt:
-                    return i
-        return None
-
-    def find_encrypted(self, target, asset):
-        find_ref = asset.name if isinstance(asset, Asset) else asset
-        for i in target.get_asset():
-            if i.name == find_ref:
-                if i.encrypt:
-                    return i
+                if mode == 'encrypt':
+                    if not i.encrypt:
+                        return i
+                elif mode == 'decrypt':
+                    if i.encrypt:
+                        return i
         return None
 
     def change_encryption(self, target, asset, mode):
-        found_unencrypted = target.find_unencrypted(target, asset)
-        found_encrypted = target.find_encrypted(target, asset)
+        found_encryption_target = target.find_encryption_target(target, asset, mode)
 
         # Validating if encryption can be performed
         if not self.verify_encryption(target, asset, mode):
@@ -328,15 +352,14 @@ class Hacker:
         self.remove_asset("Security Chip")
 
         if mode == "encrypt":
-            found_unencrypted.encrypt = True
-            print(f"{self.name} used a Security Chip to encrypt "
-                  f"a {found_unencrypted.name} in "
-                  f"their {target.get_container_term()}.")
+            found_encryption_target.encrypt = True
+            location = "rig" if isinstance(target, Rig) else "inventory"
+            print(f"{self.name} used a Security Chip to encrypt a {found_encryption_target.name} in their {location}.")
+
         elif mode == "decrypt":
-            found_encrypted.encrypt = False
-            print(f"{self.name} used a Security Chip to decrypt "
-                  f"a {found_encrypted.name} in "
-                  f"their {target.get_container_term()}.")
+            found_encryption_target.encrypt = False
+            location = "rig" if isinstance(target, Rig) else "inventory"
+            print(f"{self.name} used a Security Chip to decrypt a {found_encryption_target.name} in their {location}.")
 
     # --- General Methods ---
     def adjust_trace(self, target):
@@ -511,6 +534,6 @@ class Hacker:
 
 
     def __str__(self):
-        return (f"Hacker: {self.name} | Rig: {self.__equipped_rig.name} | Trace level: {self.__trace_level}\n"
+        return (f"Hacker: {self.name} | Rig: {self.get_rig().name} | Trace level: {self.trace}\n"
                 f"Inventory: \n" +
-                f"\n".join(str(i) for i in self.__inventory))
+                f"\n".join(str(i) for i in self.get_asset()))

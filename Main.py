@@ -126,14 +126,26 @@ def change_encryption_test():
     hk1, hk2 = starting_procedure_test()
     hk1.add_asset(get_asset("Security Chip"))
     hk1.get_rig().add_asset(get_asset("Security Chip"))
-    hk1.change_encryption(hk1.get_rig(), "Security Chip", "encrypt")
-    hk1.get_rig().list_assets()
+    hk1.change_encryption(hk1.get_rig(), "Security Chip", "asdfencrypt")
+    #hk1.get_rig().list_assets()
     hk1.perform_transfer(hk1.get_rig(), hk1,"Security Chip")
-    hk1.get_rig().list_assets()
+    #hk1.get_rig().list_assets()
 
     hk1.list_assets()
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.add_asset(get_asset("Security Chip"))
+    hk1.get_rig().add_asset(get_asset("Security Chip"))
+    hk1.get_rig().add_asset(get_asset("Security Chip"))
 
-    # hk1.change_encryption(hk1.get_rig(), get_asset("Security Chip"), "decrypt")
+    hk1.change_encryption(hk1.get_rig(), get_asset("Security Chip"), "encrypt")
+    hk1.get_rig().list_assets()
+    hk1.change_encryption(hk1.get_rig(), get_asset("Security Chip"), "decrypt")
+    hk1.get_rig().list_assets()
+    # hk1.change_encryption(hk1, get_asset("Security Chip"), "encrypt")
+    # hk1.change_encryption(hk1, get_asset("Security Chip"), "encrypt")
+    #
+    # hk1.change_encryption(hk1.get_rig(), "Security Chip", "encrypt")
+
     #hk1.add_asset(get_asset("Security Chip"))
     # hk1.change_encryption(hk1.get_rig(), get_asset("Security Chip"), "decrypt")
     #hk1.get_rig().list_assets()
@@ -202,6 +214,7 @@ def perform_transfer_test():
     hk1.perform_transfer(hk1, hk2.get_rig(), get_asset("Hardware Patch"))
     hk1.perform_transfer(hk1.get_rig(), hk1, "Security Chip")
     hk1.perform_transfer(hk1, hk1.get_rig(), "Security Chip")
+    # Storage size check
     hk1.get_rig().storage_size = -4
     hk1.perform_transfer(hk1, hk1.get_rig(), "Hardware Patch")
     hk1.get_rig().list_assets()
@@ -228,23 +241,25 @@ def perform_transfer_test():
 
 def perform_multi_transfer_test():
     hk1, hk2 = starting_procedure_test()
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk2.add_asset(get_asset("Hardware Patch"))
-
     hk1.list_assets()
-
-    hk1.get_rig().list_assets()
-    hk1.perform_multi_transfer(hk1.get_rig(), hk1)
     hk1.perform_multi_transfer(hk1,hk1.get_rig())
 
-    #hk1.get_rig().list_assets()
-    #hk1.list_assets()
+
+    # hk1.add_asset(get_asset("Hardware Patch"))
+    # hk1.add_asset(get_asset("Hardware Patch"))
+    # hk1.add_asset(get_asset("Hardware Patch"))
+    # hk1.add_asset(get_asset("Hardware Patch"))
+    # hk1.add_asset(get_asset("Hardware Patch"))
+    # hk1.add_asset(get_asset("Hardware Patch"))
+    # hk1.add_asset(get_asset("Hardware Patch"))
+    # hk2.add_asset(get_asset("Hardware Patch"))
+    #
+    #
+    # hk1.get_rig().list_assets()
+    # hk1.perform_multi_transfer(hk1.get_rig(), hk1)
+    #
+    # #hk1.get_rig().list_assets()
+    # #hk1.list_assets()
 
 def scan_and_remove_test():
     hk1, hk2 = starting_procedure_test()
@@ -288,7 +303,7 @@ def check_str_outputs():
 # battle_test()
 # single_asset_transfer()
 # extract_rig_storage_test()
-# change_encryption_test()
+change_encryption_test()
 # upgrade_rig_level_test()
 # chop_shop_test()
 # perform_transfer_test()

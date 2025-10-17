@@ -10,7 +10,20 @@ This is my own work as defined by the University's Academic Misconduct Policy.
 
 
 class Asset:
+    # Class Docstring
+    """
+    Assets are like items, they are used by Hackers and Rigs to
+    perform actions.
 
+    Attributes
+    ----------
+    name: str
+        Name of the asset.
+    description: str
+        Describes what the asset does.
+    __encryption: bool
+        True means asset is encryption, False means unencrypted.
+    """
     def __init__(self, name, description):
         self.name = name
         self.description = description
@@ -26,7 +39,7 @@ class Asset:
     # --- Property Attributes ---
     encrypt = property(get_encryption, set_encryption)
 
-
+    # Matches asset names only.
     def __eq__(self, other):
         if isinstance(other, Asset):
             return self.name == other.name
