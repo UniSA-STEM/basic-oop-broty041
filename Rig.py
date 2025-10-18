@@ -34,21 +34,16 @@ class Rig:
     __storage_size: int
         Rigs current max storage slots.
 
-
     Methods
     -------
     generate_asset():
-        Uses import random to generate a random asset, 1 at a time
-        and add to the rigs storage if not full.
+        Generate a random asset, add to the rigs storage.
     rig_condition():
-        Returns a string showing the rigs current category of
-        condition.
+        Showing the rigs current category of condition.
     find_asset():
-        Find an asset in rigs storage and accept either a string
-        or object as a parameter.
+        Find an asset in rigs storage.
     find_encryption_target():
-        Find if rig storage contains an asset that's not encrypted,
-        or an asset with encryption set that can be decrypted
+        Finds encrypted or decrypted assets.
     scan_and_remove():
         Scans for a specific asset by name, returning and removing
         it if found.
@@ -125,7 +120,10 @@ class Rig:
 
     # --- Storage Related Methods ---
     def add_asset(self, asset):
-        """Add an asset to rigs storage. Print if storage full."""
+        """
+        Add an asset to rigs storage. Print if storage full due to
+        storage size limits.
+        """
         if len(self.get_asset()) >= self.get_storage_size():
             print("Storage is full.")
             return False
