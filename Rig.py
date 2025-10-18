@@ -4,7 +4,8 @@ Description: <This module contains all the code for the rig.>
 Author: <Thomas Brown>
 ID: <110454503>
 Username: <broty041>
-This is my own work as defined by the University's Academic Misconduct Policy.
+This is my own work as defined by the University's Academic Misconduct
+Policy.
 """
 from Asset import Asset
 import random
@@ -72,7 +73,8 @@ class Rig:
         if not self.__storage:
             print(f"{self.owner.name}'s rig's storage is empty.")
         else:
-            print(f"{self.owner.name}'s rig contains {len(self.get_asset())} items:")
+            print(f"{self.owner.name}'s rig contains"
+                  f" {len(self.get_asset())} items:")
             for i in self.__storage:
                 print(i)
 
@@ -197,8 +199,10 @@ class Rig:
             asset_list = [
                 ["CryptoToken", "Used to acquire or repair rigs."],
                 ["Data Spike", "Used in battles."],
-                ["Removable Drive", "Found in rigs and used for extraction."],
-                ["Security Chip", "Used to encrypt or decrypt assets."],
+                ["Removable Drive", "Found in rigs and "
+                                    "used for extraction."],
+                ["Security Chip", "Used to encrypt or "
+                                  "decrypt assets."],
                 ["Hardware Patch", "Used to upgrade rigs."]
             ]
 
