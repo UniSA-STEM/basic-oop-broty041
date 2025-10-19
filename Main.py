@@ -90,7 +90,6 @@ def battle_test():
     print(f"\n--- Test attacking a rig itself ---")
     hk1.deal_damage(hk2.get_rig())
 
-
     print(f"\n--- Test attacking when exposed ---")
     hk1.trace = 5
     hk1.encryption_flag = False
@@ -143,7 +142,6 @@ def change_encryption_test():
     hk1.change_encryption(hk1.get_rig(), "Security Chip",
                           "encrypt")
 
-
     print(f"\n--- Test with invalid mode ---")
     hk1.get_rig().add_asset(get_asset("Security Chip"))
     hk1.change_encryption(hk1.get_rig(), "Security Chip",
@@ -159,7 +157,6 @@ def change_encryption_test():
     hk1.add_asset(get_asset("Security Chip"))
     hk1.change_encryption(hk1.get_rig(), "Security Chip",
                           "encrypt")
-
 
     print(f"\n--- Test actual decryption ---")
     hk1.add_asset(get_asset("Security Chip"))
@@ -179,7 +176,6 @@ def change_encryption_test():
     hk1.add_asset(get_asset("Security Chip"))
     hk1.change_encryption(hk1, get_asset("Security Chip"), "encrypt")
     hk1.list_assets()
-
 
     print(f"\n--- Test encrypt when exposed  ---")
     hk1.trace = 5
@@ -247,7 +243,7 @@ def chop_shop_test():
 def perform_transfer_test():
     """Perform testing of transferring a single asset"""
 
-    print(f"--- EXECUTING ---")
+    print(f"--- EXECUTING PERFORM TRANSFER TEST ---")
 
     print(f"\n--- Test transfer inventory to rig  ---")
     hk1, hk2 = starting_procedure_test()
@@ -267,7 +263,6 @@ def perform_transfer_test():
     hk1.perform_transfer(hk1.get_rig(), hk1, get_asset("CryptoToken"))
     hk1.perform_transfer(hk1, hk1.get_rig(), get_asset("CryptoToken"))
 
-
     print(f"\n--- Test transfer to full rig  ---")
     fill_inv_stor(hk1)
     fill_inv_stor(hk1.get_rig())
@@ -281,30 +276,47 @@ def perform_transfer_test():
     print(f"\n--- Test transfer to enemy ---")
     hk1.perform_transfer(hk1.get_rig(), hk2, get_asset("CryptoToken"))
 
-    print(f"\n--- CONCLUDED TRANSFER TESTING ---")
+    print(f"\n--- CONCLUDED PERFORM TRANSFER TESTING ---")
 
 
 def perform_multi_transfer_test():
     """Test transferring multiple assets."""
+    print(f"--- EXECUTING MULTI TRANSFER TEST ---")
+
+    print(f"\n--- Testing multi transfer inventory to rig  ---")
     hk1, hk2 = starting_procedure_test()
+    fill_inv_stor(hk1)
     hk1.list_assets()
     hk1.perform_multi_transfer(hk1, hk1.get_rig())
+    hk1.list_assets()
+    hk1.get_rig().list_assets()
+
+    print(f"\n--- Testing multi transfer rig to inventory  ---")
+    hk1.list_assets()
+    hk1.get_rig().list_assets()
+    hk1.perform_multi_transfer(hk1.get_rig(), hk1)
+    hk1.list_assets()
+    hk1.get_rig().list_assets()
+
+    print(f"\n--- Testing multi transfer from empty source  ---")
+    hk1.perform_multi_transfer(hk1.get_rig(), hk1)
+
+    print(f"\n--- CONCLUDED MULTI TRANSFER TEST ---")
+
 
 
 def scan_and_remove_test():
     """Testing the scan and remove method."""
-    hk1, hk2 = starting_procedure_test()
-    hk1.list_assets()
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
-    hk1.add_asset(get_asset("Hardware Patch"))
+    print(f"--- EXECUTING SCAN AND REMOVE TEST ---")
 
+    print(f"\n--- Test scan and remove  ---")
+    hk1, hk2 = starting_procedure_test()
     hk1.get_rig().add_asset(get_asset("Hardware Patch"))
     hk1.get_rig().list_assets()
-
-    print(hk1.get_rig().scan_and_remove("Hardware Patch"))
+    hk1.get_rig().scan_and_remove("Hardware Patch")
     hk1.get_rig().list_assets()
-    print(hk1)
+
+    print(f"\n--- CONCLUDED SCAN AND REMOVE TEST ---")
 
 
 def repair_rig_test():
@@ -341,12 +353,9 @@ def check_str_outputs():
     print(hk2.get_rig())
     print(hk2)
 
-
-
 # --- Main Testing Sequence ---
 # starting_procedure_test()
 # battle_test()
-# single_asset_transfer()
 # extract_rig_storage_test()
 # change_encryption_test()
 # upgrade_rig_level_test()

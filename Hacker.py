@@ -7,6 +7,7 @@ Username: <broty041>
 This is my own work as defined by the University's Academic Misconduct
 Policy.
 """
+from operator import truediv
 
 from Asset import Asset
 from Rig import Rig
@@ -271,9 +272,12 @@ class Hacker:
         Builds on perform_transfer. Iterate over storage or
         inventory and transfers all assets.
         """
-        if not from_object.get_asset().copy():
+        if from_object.get_asset():
+            print("Initiating transfer of multiple items:")
             for i in from_object.get_asset().copy():
                 self.perform_transfer(from_object, to_object, i)
+        else:
+            print(f"{from_object.name} is empty.")
 
     def extract_rig_storage(self, enemy):
         """
